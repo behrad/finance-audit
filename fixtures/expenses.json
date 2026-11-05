@@ -1,0 +1,821 @@
+{
+  "items": [
+    {
+      "id": "1001",
+      "title": "Client lunch",
+      "note": "Client lunch",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-02T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-02T09:00:00Z",
+      "modifiedAt": "2026-11-02T09:00:00Z",
+      "createdBy": {
+        "id": "u-anna",
+        "email": "anna@demo.example",
+        "firstName": "Anna",
+        "lastName": "de Vries"
+      },
+      "owner": {
+        "id": "u-anna",
+        "email": "anna@demo.example",
+        "firstName": "Anna",
+        "lastName": "de Vries"
+      },
+      "supplier": {
+        "id": "s-1001",
+        "name": "Anna de Vries"
+      },
+      "category": {
+        "id": "cat-meals",
+        "name": "Meals"
+      },
+      "reconciliation": {
+        "totalAmount": 42.8,
+        "currency": "USD",
+        "baseTotalAmount": 42.8,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-02",
+        "documentNumber": "R-1001",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-02",
+        "files": [
+          {
+            "id": "f-1001",
+            "fileId": "f-1001",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1001/files/f-1001/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1002",
+      "title": "Coffee with candidate",
+      "note": "Coffee with candidate",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-03T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-03T09:00:00Z",
+      "modifiedAt": "2026-11-03T09:00:00Z",
+      "createdBy": {
+        "id": "u-bram",
+        "email": "bram@demo.example",
+        "firstName": "Bram",
+        "lastName": "Jansen"
+      },
+      "owner": {
+        "id": "u-bram",
+        "email": "bram@demo.example",
+        "firstName": "Bram",
+        "lastName": "Jansen"
+      },
+      "supplier": {
+        "id": "s-1002",
+        "name": "Bram Jansen"
+      },
+      "category": {
+        "id": "cat-meals",
+        "name": "Meals"
+      },
+      "reconciliation": {
+        "totalAmount": 6.4,
+        "currency": "USD",
+        "baseTotalAmount": 6.4,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-03",
+        "documentNumber": "BC-77",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-03",
+        "files": [
+          {
+            "id": "f-1002",
+            "fileId": "f-1002",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1002/files/f-1002/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1003",
+      "title": "Taxi to client office",
+      "note": "Taxi to client office",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-03T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-03T09:00:00Z",
+      "modifiedAt": "2026-11-03T09:00:00Z",
+      "createdBy": {
+        "id": "u-chen",
+        "email": "chen@demo.example",
+        "firstName": "Chen",
+        "lastName": "Li"
+      },
+      "owner": {
+        "id": "u-chen",
+        "email": "chen@demo.example",
+        "firstName": "Chen",
+        "lastName": "Li"
+      },
+      "supplier": {
+        "id": "s-1003",
+        "name": "Chen Li"
+      },
+      "category": {
+        "id": "cat-travel",
+        "name": "Travel"
+      },
+      "reconciliation": {
+        "totalAmount": 38.5,
+        "currency": "USD",
+        "baseTotalAmount": 38.5,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-03",
+        "documentNumber": "C-5521",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-03",
+        "files": [
+          {
+            "id": "f-1003",
+            "fileId": "f-1003",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1003/files/f-1003/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1004",
+      "title": "Taxi to client office",
+      "note": "Taxi to client office",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-03T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-03T09:00:00Z",
+      "modifiedAt": "2026-11-03T09:00:00Z",
+      "createdBy": {
+        "id": "u-chen",
+        "email": "chen@demo.example",
+        "firstName": "Chen",
+        "lastName": "Li"
+      },
+      "owner": {
+        "id": "u-chen",
+        "email": "chen@demo.example",
+        "firstName": "Chen",
+        "lastName": "Li"
+      },
+      "supplier": {
+        "id": "s-1004",
+        "name": "Chen Li"
+      },
+      "category": {
+        "id": "cat-travel",
+        "name": "Travel"
+      },
+      "reconciliation": {
+        "totalAmount": 38.5,
+        "currency": "USD",
+        "baseTotalAmount": 38.5,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-03",
+        "documentNumber": "C-5521",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-03",
+        "files": [
+          {
+            "id": "f-1004",
+            "fileId": "f-1004",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1004/files/f-1004/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1005",
+      "title": "Hotel Berlin conference",
+      "note": "Hotel Berlin conference",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-01T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-01T09:00:00Z",
+      "modifiedAt": "2026-11-01T09:00:00Z",
+      "createdBy": {
+        "id": "u-daan",
+        "email": "daan@demo.example",
+        "firstName": "Daan",
+        "lastName": "Bakker"
+      },
+      "owner": {
+        "id": "u-daan",
+        "email": "daan@demo.example",
+        "firstName": "Daan",
+        "lastName": "Bakker"
+      },
+      "supplier": {
+        "id": "s-1005",
+        "name": "Daan Bakker"
+      },
+      "category": {
+        "id": "cat-accommodation",
+        "name": "Accommodation"
+      },
+      "reconciliation": {
+        "totalAmount": 120.0,
+        "currency": "EUR",
+        "baseTotalAmount": 150.0,
+        "baseCurrency": "USD",
+        "fxRate": 1.25,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-01",
+        "documentNumber": "A-9001",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-01",
+        "files": [
+          {
+            "id": "f-1005",
+            "fileId": "f-1005",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1005/files/f-1005/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1006",
+      "title": "Train to Berlin",
+      "note": "Train to Berlin",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-01T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-01T09:00:00Z",
+      "modifiedAt": "2026-11-01T09:00:00Z",
+      "createdBy": {
+        "id": "u-eva",
+        "email": "eva@demo.example",
+        "firstName": "Eva",
+        "lastName": "Smit"
+      },
+      "owner": {
+        "id": "u-eva",
+        "email": "eva@demo.example",
+        "firstName": "Eva",
+        "lastName": "Smit"
+      },
+      "supplier": {
+        "id": "s-1006",
+        "name": "Eva Smit"
+      },
+      "category": {
+        "id": "cat-travel",
+        "name": "Travel"
+      },
+      "reconciliation": {
+        "totalAmount": 50.0,
+        "currency": "EUR",
+        "baseTotalAmount": 54.5,
+        "baseCurrency": "USD",
+        "fxRate": 1.09,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-01",
+        "documentNumber": "Z-310",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-01",
+        "files": [
+          {
+            "id": "f-1006",
+            "fileId": "f-1006",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1006/files/f-1006/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1007",
+      "title": "Office supplies",
+      "note": "Office supplies",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-02T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-02T09:00:00Z",
+      "modifiedAt": "2026-11-02T09:00:00Z",
+      "createdBy": {
+        "id": "u-fatima",
+        "email": "fatima@demo.example",
+        "firstName": "Fatima",
+        "lastName": "Yilmaz"
+      },
+      "owner": {
+        "id": "u-fatima",
+        "email": "fatima@demo.example",
+        "firstName": "Fatima",
+        "lastName": "Yilmaz"
+      },
+      "supplier": {
+        "id": "s-1007",
+        "name": "Fatima Yilmaz"
+      },
+      "category": {
+        "id": "cat-office-supplies",
+        "name": "Office supplies"
+      },
+      "reconciliation": {
+        "totalAmount": 64.2,
+        "currency": "USD",
+        "baseTotalAmount": 46.2,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-02",
+        "documentNumber": "C-883",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-02",
+        "files": [
+          {
+            "id": "f-1007",
+            "fileId": "f-1007",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1007/files/f-1007/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1008",
+      "title": "Flight to Berlin",
+      "note": "Flight to Berlin",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-02T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-02T09:00:00Z",
+      "modifiedAt": "2026-11-02T09:00:00Z",
+      "createdBy": {
+        "id": "u-gijs",
+        "email": "gijs@demo.example",
+        "firstName": "Gijs",
+        "lastName": "Visser"
+      },
+      "owner": {
+        "id": "u-gijs",
+        "email": "gijs@demo.example",
+        "firstName": "Gijs",
+        "lastName": "Visser"
+      },
+      "supplier": {
+        "id": "s-1008",
+        "name": "Gijs Visser"
+      },
+      "category": {
+        "id": "cat-meals",
+        "name": "Meals"
+      },
+      "reconciliation": {
+        "totalAmount": 58.9,
+        "currency": "USD",
+        "baseTotalAmount": 58.9,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-02",
+        "documentNumber": "R-204",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-02",
+        "files": [
+          {
+            "id": "f-1008",
+            "fileId": "f-1008",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1008/files/f-1008/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1009",
+      "title": "Notebooks for workshop",
+      "note": "Notebooks for workshop",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-03T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-03T09:00:00Z",
+      "modifiedAt": "2026-11-03T09:00:00Z",
+      "createdBy": {
+        "id": "u-hana",
+        "email": "hana@demo.example",
+        "firstName": "Hana",
+        "lastName": "Kato"
+      },
+      "owner": {
+        "id": "u-hana",
+        "email": "hana@demo.example",
+        "firstName": "Hana",
+        "lastName": "Kato"
+      },
+      "supplier": {
+        "id": "s-1009",
+        "name": "Staples"
+      },
+      "category": {
+        "id": "cat-office-supplies",
+        "name": "Office supplies"
+      },
+      "reconciliation": {
+        "totalAmount": 25.0,
+        "currency": "USD",
+        "baseTotalAmount": 25.0,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-03",
+        "documentNumber": "H-66",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-03",
+        "files": [
+          {
+            "id": "f-1009",
+            "fileId": "f-1009",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1009/files/f-1009/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1010",
+      "title": "Taxi to airport",
+      "note": "Taxi to airport",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-03T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-03T09:00:00Z",
+      "modifiedAt": "2026-11-03T09:00:00Z",
+      "createdBy": {
+        "id": "u-ivo",
+        "email": "ivo@demo.example",
+        "firstName": "Ivo",
+        "lastName": "Mulder"
+      },
+      "owner": {
+        "id": "u-ivo",
+        "email": "ivo@demo.example",
+        "firstName": "Ivo",
+        "lastName": "Mulder"
+      },
+      "supplier": {
+        "id": "s-1010",
+        "name": "Ivo Mulder"
+      },
+      "category": {
+        "id": "cat-software",
+        "name": "Software"
+      },
+      "reconciliation": {
+        "totalAmount": 31.0,
+        "currency": "USD",
+        "baseTotalAmount": 31.0,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-03",
+        "documentNumber": "S-4410",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-03",
+        "files": [
+          {
+            "id": "f-1010",
+            "fileId": "f-1010",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1010/files/f-1010/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1011",
+      "title": "Snacks for team meeting",
+      "note": "Snacks for team meeting",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-04T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-04T09:00:00Z",
+      "modifiedAt": "2026-11-04T09:00:00Z",
+      "createdBy": {
+        "id": "u-jade",
+        "email": "jade@demo.example",
+        "firstName": "Jade",
+        "lastName": "Peters"
+      },
+      "owner": {
+        "id": "u-jade",
+        "email": "jade@demo.example",
+        "firstName": "Jade",
+        "lastName": "Peters"
+      },
+      "supplier": {
+        "id": "s-1011",
+        "name": "Jade Peters"
+      },
+      "category": {
+        "id": "cat-meals",
+        "name": "Meals"
+      },
+      "reconciliation": {
+        "totalAmount": 18.75,
+        "currency": "USD",
+        "baseTotalAmount": 18.75,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-10-12",
+        "documentNumber": "AH-18",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-04",
+        "files": [
+          {
+            "id": "f-1011",
+            "fileId": "f-1011",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1011/files/f-1011/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1012",
+      "title": "Learning budget",
+      "note": "Learning budget",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-08-28T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-08-28T09:00:00Z",
+      "modifiedAt": "2026-08-28T09:00:00Z",
+      "createdBy": {
+        "id": "u-sajad",
+        "email": "sajad@demo.example",
+        "firstName": "Sajad",
+        "lastName": "Ahmadi"
+      },
+      "owner": {
+        "id": "u-sajad",
+        "email": "sajad@demo.example",
+        "firstName": "Sajad",
+        "lastName": "Ahmadi"
+      },
+      "supplier": {
+        "id": "s-1012",
+        "name": "Sajad Ahmadi"
+      },
+      "category": {
+        "id": "cat-learning",
+        "name": "Learning"
+      },
+      "reconciliation": {
+        "totalAmount": 29.0,
+        "currency": "USD",
+        "baseTotalAmount": 29.0,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-08-28",
+        "documentNumber": "2961-1182",
+        "documentType": "receipt",
+        "serviceDate": "2026-08-28",
+        "files": [
+          {
+            "id": "f-1012",
+            "fileId": "f-1012",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1012/files/f-1012/content",
+            "contentType": "image/png"
+          }
+        ]
+      },
+      "amortization": {
+        "startDate": "2026-08-28",
+        "endDate": "2026-09-28"
+      }
+    },
+    {
+      "id": "1013",
+      "title": "USB-C hub for laptop",
+      "note": "USB-C hub for laptop",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-02T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-02T09:00:00Z",
+      "modifiedAt": "2026-11-02T09:00:00Z",
+      "createdBy": {
+        "id": "u-karin",
+        "email": "karin@demo.example",
+        "firstName": "Karin",
+        "lastName": "Bos"
+      },
+      "owner": {
+        "id": "u-karin",
+        "email": "karin@demo.example",
+        "firstName": "Karin",
+        "lastName": "Bos"
+      },
+      "supplier": {
+        "id": "s-1013",
+        "name": "Karin Bos"
+      },
+      "category": {
+        "id": "cat-equipment",
+        "name": "Equipment"
+      },
+      "reconciliation": {
+        "totalAmount": 45.0,
+        "currency": "USD",
+        "baseTotalAmount": 45.0,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-02",
+        "documentNumber": "INV-88132",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-02",
+        "files": [
+          {
+            "id": "f-1013",
+            "fileId": "f-1013",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1013/files/f-1013/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1014",
+      "title": "Parking client visit",
+      "note": "Parking client visit",
+      "type": "reimbursable",
+      "status": "draft",
+      "approvalProcess": {
+        "status": "pending",
+        "submittedAt": "2026-11-04T09:00:00Z"
+      },
+      "isPaid": false,
+      "createdAt": "2026-11-04T09:00:00Z",
+      "modifiedAt": "2026-11-04T09:00:00Z",
+      "createdBy": {
+        "id": "u-lars",
+        "email": "lars@demo.example",
+        "firstName": "Lars",
+        "lastName": "de Jong"
+      },
+      "owner": {
+        "id": "u-lars",
+        "email": "lars@demo.example",
+        "firstName": "Lars",
+        "lastName": "de Jong"
+      },
+      "supplier": {
+        "id": "s-1014",
+        "name": "Lars de Jong"
+      },
+      "category": {
+        "id": "cat-travel",
+        "name": "Travel"
+      },
+      "reconciliation": {
+        "totalAmount": 19.5,
+        "currency": "USD",
+        "baseTotalAmount": 19.5,
+        "baseCurrency": "USD",
+        "fxRate": 1.0,
+        "customFields": []
+      },
+      "lineItems": [],
+      "externalLinks": [],
+      "document": {
+        "documentDate": "2026-11-04",
+        "documentNumber": "QP-501",
+        "documentType": "receipt",
+        "serviceDate": "2026-11-04",
+        "files": [
+          {
+            "id": "f-1014",
+            "fileId": "f-1014",
+            "url": "https://api.payhawk.com/api/v3/accounts/demo_account/expenses/1014/files/f-1014/content",
+            "contentType": "image/png"
+          }
+        ]
+      }
+    }
+  ],
+  "total": 14
+}

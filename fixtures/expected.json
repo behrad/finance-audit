@@ -1,0 +1,152 @@
+[
+  {
+    "expense_id": "1001",
+    "status": "clean",
+    "flags": [],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1002",
+    "status": "clean",
+    "flags": [],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "approve",
+    "action_source": "auto_under_10"
+  },
+  {
+    "expense_id": "1003",
+    "status": "clean",
+    "flags": [],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1004",
+    "status": "needs attention",
+    "flags": [
+      "duplicate"
+    ],
+    "duplicate_of": "1003",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1005",
+    "status": "needs attention",
+    "flags": [
+      "wrong_exchange_rate"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1006",
+    "status": "clean",
+    "flags": [],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1007",
+    "status": "needs attention",
+    "flags": [
+      "wrong_value"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1008",
+    "status": "needs attention",
+    "flags": [
+      "note_mismatch"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1009",
+    "status": "needs attention",
+    "flags": [
+      "supplier_not_employee"
+    ],
+    "duplicate_of": "",
+    "fixes": {
+      "supplier": "Hana Kato"
+    },
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1010",
+    "status": "needs attention",
+    "flags": [
+      "category_mismatch"
+    ],
+    "duplicate_of": "",
+    "fixes": {
+      "category": "Travel"
+    },
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1011",
+    "status": "needs attention",
+    "flags": [
+      "date_mismatch"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1012",
+    "status": "needs attention",
+    "flags": [
+      "service_period_out_of_range"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1013",
+    "status": "needs attention",
+    "flags": [
+      "number_mismatch"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  },
+  {
+    "expense_id": "1014",
+    "status": "needs attention",
+    "flags": [
+      "unreadable_receipt"
+    ],
+    "duplicate_of": "",
+    "fixes": {},
+    "action": "",
+    "action_source": ""
+  }
+]
