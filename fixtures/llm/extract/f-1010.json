@@ -1,0 +1,13 @@
+{
+  "merchant": "Uber",
+  "receipt_number": "S-4410",
+  "date": "2026-11-03",
+  "total": 31.0,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Trip to Schiphol"
+  ],
+  "legibility": 0.95
+}

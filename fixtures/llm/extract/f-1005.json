@@ -1,0 +1,13 @@
+{
+  "merchant": "Hotel Adlon Berlin",
+  "receipt_number": "A-9001",
+  "date": "2026-11-01",
+  "total": 120.0,
+  "currency": "EUR",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Room, 1 night"
+  ],
+  "legibility": 0.95
+}

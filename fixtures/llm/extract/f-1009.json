@@ -1,0 +1,13 @@
+{
+  "merchant": "Staples",
+  "receipt_number": "H-66",
+  "date": "2026-11-03",
+  "total": 25.0,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Notebooks x5"
+  ],
+  "legibility": 0.95
+}

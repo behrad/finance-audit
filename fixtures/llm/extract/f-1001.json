@@ -1,0 +1,13 @@
+{
+  "merchant": "Brasserie Noord",
+  "receipt_number": "R-1001",
+  "date": "2026-11-02",
+  "total": 42.8,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Lunch menu x2"
+  ],
+  "legibility": 0.95
+}

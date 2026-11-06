@@ -1,0 +1,13 @@
+{
+  "merchant": "City Taxi Amsterdam",
+  "receipt_number": "C-5521",
+  "date": "2026-11-03",
+  "total": 38.5,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Ride Centraal > Zuidas"
+  ],
+  "legibility": 0.95
+}

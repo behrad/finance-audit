@@ -1,0 +1,9 @@
+{
+  "flags": [
+    {
+      "name": "note_mismatch",
+      "description": "The note 'Flight to Berlin' does not describe this receipt (Trattoria Roma)."
+    }
+  ],
+  "category_fix": ""
+}

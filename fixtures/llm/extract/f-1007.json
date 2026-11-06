@@ -1,0 +1,14 @@
+{
+  "merchant": "Office Depot",
+  "receipt_number": "C-883",
+  "date": "2026-11-02",
+  "total": 64.2,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Printer paper",
+    "Toner"
+  ],
+  "legibility": 0.95
+}

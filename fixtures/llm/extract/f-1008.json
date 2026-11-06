@@ -1,0 +1,15 @@
+{
+  "merchant": "Trattoria Roma",
+  "receipt_number": "R-204",
+  "date": "2026-11-02",
+  "total": 58.9,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Pasta",
+    "Pizza",
+    "Wine"
+  ],
+  "legibility": 0.95
+}

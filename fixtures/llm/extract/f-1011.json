@@ -1,0 +1,13 @@
+{
+  "merchant": "Albert Heijn",
+  "receipt_number": "AH-18",
+  "date": "2026-11-04",
+  "total": 18.75,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Team snacks"
+  ],
+  "legibility": 0.95
+}

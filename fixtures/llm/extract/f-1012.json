@@ -1,0 +1,13 @@
+{
+  "merchant": "Qwiklabs Inc.",
+  "receipt_number": "2961-1182",
+  "date": "2026-08-28",
+  "total": 29.0,
+  "currency": "USD",
+  "service_start": "2026-08-28",
+  "service_end": "2026-09-28",
+  "items": [
+    "Google Skills Monthly Subscription"
+  ],
+  "legibility": 0.95
+}

@@ -1,0 +1,13 @@
+{
+  "merchant": "Bol.com",
+  "receipt_number": "INV-88123",
+  "date": "2026-11-02",
+  "total": 45.0,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "USB-C hub"
+  ],
+  "legibility": 0.95
+}

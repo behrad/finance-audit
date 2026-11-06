@@ -14,24 +14,25 @@
       "createdAt": "2026-11-02T09:00:00Z",
       "modifiedAt": "2026-11-02T09:00:00Z",
       "createdBy": {
-        "id": "u-anna",
+        "id": "f2eb2828-33be-5050-9fda-7eb4514c268c",
         "email": "anna@demo.example",
         "firstName": "Anna",
         "lastName": "de Vries"
       },
       "owner": {
-        "id": "u-anna",
+        "id": "f2eb2828-33be-5050-9fda-7eb4514c268c",
         "email": "anna@demo.example",
         "firstName": "Anna",
         "lastName": "de Vries"
       },
       "supplier": {
-        "id": "s-1001",
+        "id": "301",
         "name": "Anna de Vries"
       },
       "category": {
-        "id": "cat-meals",
-        "name": "Meals"
+        "id": "201",
+        "name": "Meals",
+        "fullName": "Meals"
       },
       "reconciliation": {
         "totalAmount": 42.8,
@@ -44,10 +45,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-02",
+        "documentDate": "2026-11-02T00:00:00Z",
         "documentNumber": "R-1001",
         "documentType": "receipt",
-        "serviceDate": "2026-11-02",
+        "serviceDate": "2026-11-02T00:00:00Z",
         "files": [
           {
             "id": "f-1001",
@@ -72,24 +73,25 @@
       "createdAt": "2026-11-03T09:00:00Z",
       "modifiedAt": "2026-11-03T09:00:00Z",
       "createdBy": {
-        "id": "u-bram",
+        "id": "8325ed01-af69-5de9-a6c0-370de749b923",
         "email": "bram@demo.example",
         "firstName": "Bram",
         "lastName": "Jansen"
       },
       "owner": {
-        "id": "u-bram",
+        "id": "8325ed01-af69-5de9-a6c0-370de749b923",
         "email": "bram@demo.example",
         "firstName": "Bram",
         "lastName": "Jansen"
       },
       "supplier": {
-        "id": "s-1002",
+        "id": "302",
         "name": "Bram Jansen"
       },
       "category": {
-        "id": "cat-meals",
-        "name": "Meals"
+        "id": "201",
+        "name": "Meals",
+        "fullName": "Meals"
       },
       "reconciliation": {
         "totalAmount": 6.4,
@@ -102,10 +104,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-03",
+        "documentDate": "2026-11-03T00:00:00Z",
         "documentNumber": "BC-77",
         "documentType": "receipt",
-        "serviceDate": "2026-11-03",
+        "serviceDate": "2026-11-03T00:00:00Z",
         "files": [
           {
             "id": "f-1002",
@@ -130,24 +132,25 @@
       "createdAt": "2026-11-03T09:00:00Z",
       "modifiedAt": "2026-11-03T09:00:00Z",
       "createdBy": {
-        "id": "u-chen",
+        "id": "36d5dbc4-8e9e-5c1f-9d85-5162ccba3b5d",
         "email": "chen@demo.example",
         "firstName": "Chen",
         "lastName": "Li"
       },
       "owner": {
-        "id": "u-chen",
+        "id": "36d5dbc4-8e9e-5c1f-9d85-5162ccba3b5d",
         "email": "chen@demo.example",
         "firstName": "Chen",
         "lastName": "Li"
       },
       "supplier": {
-        "id": "s-1003",
+        "id": "303",
         "name": "Chen Li"
       },
       "category": {
-        "id": "cat-travel",
-        "name": "Travel"
+        "id": "202",
+        "name": "Travel",
+        "fullName": "Travel"
       },
       "reconciliation": {
         "totalAmount": 38.5,
@@ -160,10 +163,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-03",
+        "documentDate": "2026-11-03T00:00:00Z",
         "documentNumber": "C-5521",
         "documentType": "receipt",
-        "serviceDate": "2026-11-03",
+        "serviceDate": "2026-11-03T00:00:00Z",
         "files": [
           {
             "id": "f-1003",
@@ -188,24 +191,25 @@
       "createdAt": "2026-11-03T09:00:00Z",
       "modifiedAt": "2026-11-03T09:00:00Z",
       "createdBy": {
-        "id": "u-chen",
+        "id": "36d5dbc4-8e9e-5c1f-9d85-5162ccba3b5d",
         "email": "chen@demo.example",
         "firstName": "Chen",
         "lastName": "Li"
       },
       "owner": {
-        "id": "u-chen",
+        "id": "36d5dbc4-8e9e-5c1f-9d85-5162ccba3b5d",
         "email": "chen@demo.example",
         "firstName": "Chen",
         "lastName": "Li"
       },
       "supplier": {
-        "id": "s-1004",
+        "id": "303",
         "name": "Chen Li"
       },
       "category": {
-        "id": "cat-travel",
-        "name": "Travel"
+        "id": "202",
+        "name": "Travel",
+        "fullName": "Travel"
       },
       "reconciliation": {
         "totalAmount": 38.5,
@@ -218,10 +222,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-03",
+        "documentDate": "2026-11-03T00:00:00Z",
         "documentNumber": "C-5521",
         "documentType": "receipt",
-        "serviceDate": "2026-11-03",
+        "serviceDate": "2026-11-03T00:00:00Z",
         "files": [
           {
             "id": "f-1004",
@@ -246,24 +250,25 @@
       "createdAt": "2026-11-01T09:00:00Z",
       "modifiedAt": "2026-11-01T09:00:00Z",
       "createdBy": {
-        "id": "u-daan",
+        "id": "2a16ac95-2774-5cb2-92fe-34a203baab65",
         "email": "daan@demo.example",
         "firstName": "Daan",
         "lastName": "Bakker"
       },
       "owner": {
-        "id": "u-daan",
+        "id": "2a16ac95-2774-5cb2-92fe-34a203baab65",
         "email": "daan@demo.example",
         "firstName": "Daan",
         "lastName": "Bakker"
       },
       "supplier": {
-        "id": "s-1005",
+        "id": "304",
         "name": "Daan Bakker"
       },
       "category": {
-        "id": "cat-accommodation",
-        "name": "Accommodation"
+        "id": "203",
+        "name": "Accommodation",
+        "fullName": "Accommodation"
       },
       "reconciliation": {
         "totalAmount": 120.0,
@@ -276,10 +281,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-01",
+        "documentDate": "2026-11-01T00:00:00Z",
         "documentNumber": "A-9001",
         "documentType": "receipt",
-        "serviceDate": "2026-11-01",
+        "serviceDate": "2026-11-01T00:00:00Z",
         "files": [
           {
             "id": "f-1005",
@@ -304,24 +309,25 @@
       "createdAt": "2026-11-01T09:00:00Z",
       "modifiedAt": "2026-11-01T09:00:00Z",
       "createdBy": {
-        "id": "u-eva",
+        "id": "5b9b0678-b904-5bfe-92a0-edb782f8b6b5",
         "email": "eva@demo.example",
         "firstName": "Eva",
         "lastName": "Smit"
       },
       "owner": {
-        "id": "u-eva",
+        "id": "5b9b0678-b904-5bfe-92a0-edb782f8b6b5",
         "email": "eva@demo.example",
         "firstName": "Eva",
         "lastName": "Smit"
       },
       "supplier": {
-        "id": "s-1006",
+        "id": "305",
         "name": "Eva Smit"
       },
       "category": {
-        "id": "cat-travel",
-        "name": "Travel"
+        "id": "202",
+        "name": "Travel",
+        "fullName": "Travel"
       },
       "reconciliation": {
         "totalAmount": 50.0,
@@ -334,10 +340,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-01",
+        "documentDate": "2026-11-01T00:00:00Z",
         "documentNumber": "Z-310",
         "documentType": "receipt",
-        "serviceDate": "2026-11-01",
+        "serviceDate": "2026-11-01T00:00:00Z",
         "files": [
           {
             "id": "f-1006",
@@ -362,24 +368,25 @@
       "createdAt": "2026-11-02T09:00:00Z",
       "modifiedAt": "2026-11-02T09:00:00Z",
       "createdBy": {
-        "id": "u-fatima",
+        "id": "7df165c3-5b3b-5f2d-bf1f-0780b82ba2e0",
         "email": "fatima@demo.example",
         "firstName": "Fatima",
         "lastName": "Yilmaz"
       },
       "owner": {
-        "id": "u-fatima",
+        "id": "7df165c3-5b3b-5f2d-bf1f-0780b82ba2e0",
         "email": "fatima@demo.example",
         "firstName": "Fatima",
         "lastName": "Yilmaz"
       },
       "supplier": {
-        "id": "s-1007",
+        "id": "306",
         "name": "Fatima Yilmaz"
       },
       "category": {
-        "id": "cat-office-supplies",
-        "name": "Office supplies"
+        "id": "204",
+        "name": "Office supplies",
+        "fullName": "Office supplies"
       },
       "reconciliation": {
         "totalAmount": 64.2,
@@ -392,10 +399,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-02",
+        "documentDate": "2026-11-02T00:00:00Z",
         "documentNumber": "C-883",
         "documentType": "receipt",
-        "serviceDate": "2026-11-02",
+        "serviceDate": "2026-11-02T00:00:00Z",
         "files": [
           {
             "id": "f-1007",
@@ -420,24 +427,25 @@
       "createdAt": "2026-11-02T09:00:00Z",
       "modifiedAt": "2026-11-02T09:00:00Z",
       "createdBy": {
-        "id": "u-gijs",
+        "id": "7f35ee5b-1196-599f-bb39-fb53b0ca738a",
         "email": "gijs@demo.example",
         "firstName": "Gijs",
         "lastName": "Visser"
       },
       "owner": {
-        "id": "u-gijs",
+        "id": "7f35ee5b-1196-599f-bb39-fb53b0ca738a",
         "email": "gijs@demo.example",
         "firstName": "Gijs",
         "lastName": "Visser"
       },
       "supplier": {
-        "id": "s-1008",
+        "id": "307",
         "name": "Gijs Visser"
       },
       "category": {
-        "id": "cat-meals",
-        "name": "Meals"
+        "id": "201",
+        "name": "Meals",
+        "fullName": "Meals"
       },
       "reconciliation": {
         "totalAmount": 58.9,
@@ -450,10 +458,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-02",
+        "documentDate": "2026-11-02T00:00:00Z",
         "documentNumber": "R-204",
         "documentType": "receipt",
-        "serviceDate": "2026-11-02",
+        "serviceDate": "2026-11-02T00:00:00Z",
         "files": [
           {
             "id": "f-1008",
@@ -478,24 +486,25 @@
       "createdAt": "2026-11-03T09:00:00Z",
       "modifiedAt": "2026-11-03T09:00:00Z",
       "createdBy": {
-        "id": "u-hana",
+        "id": "2e55ad39-e97d-58ce-808b-027aad1aac68",
         "email": "hana@demo.example",
         "firstName": "Hana",
         "lastName": "Kato"
       },
       "owner": {
-        "id": "u-hana",
+        "id": "2e55ad39-e97d-58ce-808b-027aad1aac68",
         "email": "hana@demo.example",
         "firstName": "Hana",
         "lastName": "Kato"
       },
       "supplier": {
-        "id": "s-1009",
+        "id": "313",
         "name": "Staples"
       },
       "category": {
-        "id": "cat-office-supplies",
-        "name": "Office supplies"
+        "id": "204",
+        "name": "Office supplies",
+        "fullName": "Office supplies"
       },
       "reconciliation": {
         "totalAmount": 25.0,
@@ -508,10 +517,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-03",
+        "documentDate": "2026-11-03T00:00:00Z",
         "documentNumber": "H-66",
         "documentType": "receipt",
-        "serviceDate": "2026-11-03",
+        "serviceDate": "2026-11-03T00:00:00Z",
         "files": [
           {
             "id": "f-1009",
@@ -536,24 +545,25 @@
       "createdAt": "2026-11-03T09:00:00Z",
       "modifiedAt": "2026-11-03T09:00:00Z",
       "createdBy": {
-        "id": "u-ivo",
+        "id": "30873592-761a-5686-89a5-f04e08d0d94f",
         "email": "ivo@demo.example",
         "firstName": "Ivo",
         "lastName": "Mulder"
       },
       "owner": {
-        "id": "u-ivo",
+        "id": "30873592-761a-5686-89a5-f04e08d0d94f",
         "email": "ivo@demo.example",
         "firstName": "Ivo",
         "lastName": "Mulder"
       },
       "supplier": {
-        "id": "s-1010",
+        "id": "308",
         "name": "Ivo Mulder"
       },
       "category": {
-        "id": "cat-software",
-        "name": "Software"
+        "id": "205",
+        "name": "Software",
+        "fullName": "Software"
       },
       "reconciliation": {
         "totalAmount": 31.0,
@@ -566,10 +576,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-03",
+        "documentDate": "2026-11-03T00:00:00Z",
         "documentNumber": "S-4410",
         "documentType": "receipt",
-        "serviceDate": "2026-11-03",
+        "serviceDate": "2026-11-03T00:00:00Z",
         "files": [
           {
             "id": "f-1010",
@@ -594,24 +604,25 @@
       "createdAt": "2026-11-04T09:00:00Z",
       "modifiedAt": "2026-11-04T09:00:00Z",
       "createdBy": {
-        "id": "u-jade",
+        "id": "ec6cd220-5e33-5f87-83f0-fe8ddf27f61a",
         "email": "jade@demo.example",
         "firstName": "Jade",
         "lastName": "Peters"
       },
       "owner": {
-        "id": "u-jade",
+        "id": "ec6cd220-5e33-5f87-83f0-fe8ddf27f61a",
         "email": "jade@demo.example",
         "firstName": "Jade",
         "lastName": "Peters"
       },
       "supplier": {
-        "id": "s-1011",
+        "id": "309",
         "name": "Jade Peters"
       },
       "category": {
-        "id": "cat-meals",
-        "name": "Meals"
+        "id": "201",
+        "name": "Meals",
+        "fullName": "Meals"
       },
       "reconciliation": {
         "totalAmount": 18.75,
@@ -624,10 +635,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-10-12",
+        "documentDate": "2026-10-12T00:00:00Z",
         "documentNumber": "AH-18",
         "documentType": "receipt",
-        "serviceDate": "2026-11-04",
+        "serviceDate": "2026-11-04T00:00:00Z",
         "files": [
           {
             "id": "f-1011",
@@ -652,24 +663,25 @@
       "createdAt": "2026-08-28T09:00:00Z",
       "modifiedAt": "2026-08-28T09:00:00Z",
       "createdBy": {
-        "id": "u-sajad",
+        "id": "236ffb8a-6157-5e8b-8592-16b175ff384a",
         "email": "sajad@demo.example",
         "firstName": "Sajad",
         "lastName": "Ahmadi"
       },
       "owner": {
-        "id": "u-sajad",
+        "id": "236ffb8a-6157-5e8b-8592-16b175ff384a",
         "email": "sajad@demo.example",
         "firstName": "Sajad",
         "lastName": "Ahmadi"
       },
       "supplier": {
-        "id": "s-1012",
+        "id": "312",
         "name": "Sajad Ahmadi"
       },
       "category": {
-        "id": "cat-learning",
-        "name": "Learning"
+        "id": "206",
+        "name": "Learning",
+        "fullName": "Learning"
       },
       "reconciliation": {
         "totalAmount": 29.0,
@@ -682,10 +694,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-08-28",
+        "documentDate": "2026-08-28T00:00:00Z",
         "documentNumber": "2961-1182",
         "documentType": "receipt",
-        "serviceDate": "2026-08-28",
+        "serviceDate": "2026-08-28T00:00:00Z",
         "files": [
           {
             "id": "f-1012",
@@ -696,8 +708,8 @@
         ]
       },
       "amortization": {
-        "startDate": "2026-08-28",
-        "endDate": "2026-09-28"
+        "startDate": "2026-08-28T00:00:00Z",
+        "endDate": "2026-09-28T00:00:00Z"
       }
     },
     {
@@ -714,24 +726,25 @@
       "createdAt": "2026-11-02T09:00:00Z",
       "modifiedAt": "2026-11-02T09:00:00Z",
       "createdBy": {
-        "id": "u-karin",
+        "id": "395a80ec-12d5-5d6a-a752-980b77cc546e",
         "email": "karin@demo.example",
         "firstName": "Karin",
         "lastName": "Bos"
       },
       "owner": {
-        "id": "u-karin",
+        "id": "395a80ec-12d5-5d6a-a752-980b77cc546e",
         "email": "karin@demo.example",
         "firstName": "Karin",
         "lastName": "Bos"
       },
       "supplier": {
-        "id": "s-1013",
+        "id": "310",
         "name": "Karin Bos"
       },
       "category": {
-        "id": "cat-equipment",
-        "name": "Equipment"
+        "id": "207",
+        "name": "Equipment",
+        "fullName": "Equipment"
       },
       "reconciliation": {
         "totalAmount": 45.0,
@@ -744,10 +757,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-02",
+        "documentDate": "2026-11-02T00:00:00Z",
         "documentNumber": "INV-88132",
         "documentType": "receipt",
-        "serviceDate": "2026-11-02",
+        "serviceDate": "2026-11-02T00:00:00Z",
         "files": [
           {
             "id": "f-1013",
@@ -772,24 +785,25 @@
       "createdAt": "2026-11-04T09:00:00Z",
       "modifiedAt": "2026-11-04T09:00:00Z",
       "createdBy": {
-        "id": "u-lars",
+        "id": "7a41ab03-a378-5ff0-b19e-ef0da2fd2017",
         "email": "lars@demo.example",
         "firstName": "Lars",
         "lastName": "de Jong"
       },
       "owner": {
-        "id": "u-lars",
+        "id": "7a41ab03-a378-5ff0-b19e-ef0da2fd2017",
         "email": "lars@demo.example",
         "firstName": "Lars",
         "lastName": "de Jong"
       },
       "supplier": {
-        "id": "s-1014",
+        "id": "311",
         "name": "Lars de Jong"
       },
       "category": {
-        "id": "cat-travel",
-        "name": "Travel"
+        "id": "202",
+        "name": "Travel",
+        "fullName": "Travel"
       },
       "reconciliation": {
         "totalAmount": 19.5,
@@ -802,10 +816,10 @@
       "lineItems": [],
       "externalLinks": [],
       "document": {
-        "documentDate": "2026-11-04",
+        "documentDate": "2026-11-04T00:00:00Z",
         "documentNumber": "QP-501",
         "documentType": "receipt",
-        "serviceDate": "2026-11-04",
+        "serviceDate": "2026-11-04T00:00:00Z",
         "files": [
           {
             "id": "f-1014",

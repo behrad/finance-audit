@@ -1,0 +1,234 @@
+{
+  "account": {
+    "id": "demo_account",
+    "name": "Demo BV",
+    "uic": "NL000000000",
+    "baseCurrency": "USD"
+  },
+  "categories": [
+    {
+      "id": "201",
+      "name": "Meals",
+      "fullName": "Meals",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "202",
+      "name": "Travel",
+      "fullName": "Travel",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "203",
+      "name": "Accommodation",
+      "fullName": "Accommodation",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "204",
+      "name": "Office supplies",
+      "fullName": "Office supplies",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "205",
+      "name": "Software",
+      "fullName": "Software",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "206",
+      "name": "Learning",
+      "fullName": "Learning",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "207",
+      "name": "Equipment",
+      "fullName": "Equipment",
+      "createdAt": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "301",
+      "name": "Anna de Vries",
+      "status": "active"
+    },
+    {
+      "id": "302",
+      "name": "Bram Jansen",
+      "status": "active"
+    },
+    {
+      "id": "303",
+      "name": "Chen Li",
+      "status": "active"
+    },
+    {
+      "id": "304",
+      "name": "Daan Bakker",
+      "status": "active"
+    },
+    {
+      "id": "305",
+      "name": "Eva Smit",
+      "status": "active"
+    },
+    {
+      "id": "306",
+      "name": "Fatima Yilmaz",
+      "status": "active"
+    },
+    {
+      "id": "307",
+      "name": "Gijs Visser",
+      "status": "active"
+    },
+    {
+      "id": "308",
+      "name": "Ivo Mulder",
+      "status": "active"
+    },
+    {
+      "id": "309",
+      "name": "Jade Peters",
+      "status": "active"
+    },
+    {
+      "id": "310",
+      "name": "Karin Bos",
+      "status": "active"
+    },
+    {
+      "id": "311",
+      "name": "Lars de Jong",
+      "status": "active"
+    },
+    {
+      "id": "312",
+      "name": "Sajad Ahmadi",
+      "status": "active"
+    },
+    {
+      "id": "313",
+      "name": "Staples",
+      "status": "active"
+    }
+  ],
+  "users": [
+    {
+      "id": "f2eb2828-33be-5050-9fda-7eb4514c268c",
+      "email": "anna@demo.example",
+      "firstName": "Anna",
+      "lastName": "de Vries",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "8325ed01-af69-5de9-a6c0-370de749b923",
+      "email": "bram@demo.example",
+      "firstName": "Bram",
+      "lastName": "Jansen",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "36d5dbc4-8e9e-5c1f-9d85-5162ccba3b5d",
+      "email": "chen@demo.example",
+      "firstName": "Chen",
+      "lastName": "Li",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "2a16ac95-2774-5cb2-92fe-34a203baab65",
+      "email": "daan@demo.example",
+      "firstName": "Daan",
+      "lastName": "Bakker",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "5b9b0678-b904-5bfe-92a0-edb782f8b6b5",
+      "email": "eva@demo.example",
+      "firstName": "Eva",
+      "lastName": "Smit",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "7df165c3-5b3b-5f2d-bf1f-0780b82ba2e0",
+      "email": "fatima@demo.example",
+      "firstName": "Fatima",
+      "lastName": "Yilmaz",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "7f35ee5b-1196-599f-bb39-fb53b0ca738a",
+      "email": "gijs@demo.example",
+      "firstName": "Gijs",
+      "lastName": "Visser",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "2e55ad39-e97d-58ce-808b-027aad1aac68",
+      "email": "hana@demo.example",
+      "firstName": "Hana",
+      "lastName": "Kato",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "30873592-761a-5686-89a5-f04e08d0d94f",
+      "email": "ivo@demo.example",
+      "firstName": "Ivo",
+      "lastName": "Mulder",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "ec6cd220-5e33-5f87-83f0-fe8ddf27f61a",
+      "email": "jade@demo.example",
+      "firstName": "Jade",
+      "lastName": "Peters",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "236ffb8a-6157-5e8b-8592-16b175ff384a",
+      "email": "sajad@demo.example",
+      "firstName": "Sajad",
+      "lastName": "Ahmadi",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "395a80ec-12d5-5d6a-a752-980b77cc546e",
+      "email": "karin@demo.example",
+      "firstName": "Karin",
+      "lastName": "Bos",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "7a41ab03-a378-5ff0-b19e-ef0da2fd2017",
+      "email": "lars@demo.example",
+      "firstName": "Lars",
+      "lastName": "de Jong",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "custom_fields": [
+    {
+      "id": "401",
+      "label": "AI review",
+      "type": "free_text_input",
+      "isRequired": false
+    }
+  ],
+  "payments": {}
+}

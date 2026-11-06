@@ -1,0 +1,13 @@
+{
+  "merchant": "Bean Counter Coffee",
+  "receipt_number": "BC-77",
+  "date": "2026-11-03",
+  "total": 6.4,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Flat white x2"
+  ],
+  "legibility": 0.95
+}

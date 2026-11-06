@@ -5,6 +5,7 @@ Each case trips exactly one rule from the 'Skill payhawk' ruleset, so the set
 doubles as the regression suite for the rules engine.
 """
 import json
+import uuid
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -12,6 +13,19 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 OUT = Path(__file__).resolve().parent.parent / "fixtures"
 ACCOUNT = "demo_account"
 BASE = f"https://api.payhawk.com/api/v3/accounts/{ACCOUNT}"
+
+
+CATEGORIES = ["Meals", "Travel", "Accommodation", "Office supplies", "Software", "Learning", "Equipment"]
+CAT_ID = {n: str(201 + i) for i, n in enumerate(CATEGORIES)}
+CF_AI_REVIEW = "401"
+
+
+def user_id(first):
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{first.lower()}.demo.example"))
+
+
+def supplier_names():
+    return sorted({c["form"].get("supplier", " ".join(c["emp"])) for c in CASES})
 
 
 def font(size, bold=False):
@@ -107,24 +121,52 @@ def expense(c, total):
     fx = f.get("fx", 1.0)
     form_total = f.get("total", round(total * fx, 2))
     first, last = c["emp"]
-    owner = {"id": f"u-{first.lower()}", "email": f"{first.lower()}@demo.example", "firstName": first, "lastName": last}
+    owner = {"id": user_id(first), "email": f"{first.lower()}@demo.example", "firstName": first, "lastName": last}
     file_id = f"f-{c['id']}"
-    doc = {"documentDate": f.get("date", date), "documentNumber": f.get("number", number), "documentType": "receipt",
-           "serviceDate": period[0] if period else date,
+    doc = {"documentDate": f.get("date", date) + "T00:00:00Z", "documentNumber": f.get("number", number),
+           "documentType": "receipt", "serviceDate": (period[0] if period else date) + "T00:00:00Z",
            "files": [{"id": file_id, "fileId": file_id, "url": f"{BASE}/expenses/{c['id']}/files/{file_id}/content",
                       "contentType": "image/png"}]}
+    sname = f.get("supplier", f"{first} {last}")
     e = {"id": c["id"], "title": c["note"], "note": c["note"], "type": "reimbursable", "status": "draft",
          "approvalProcess": {"status": "pending", "submittedAt": f"{date}T09:00:00Z"},
          "isPaid": False, "createdAt": f"{date}T09:00:00Z", "modifiedAt": f"{date}T09:00:00Z",
          "createdBy": owner, "owner": owner,
-         "supplier": {"id": f"s-{c['id']}", "name": f.get("supplier", f"{first} {last}")},
-         "category": {"id": f"cat-{c['cat'].lower().replace(' ', '-')}", "name": c["cat"]},
+         "supplier": {"id": str(301 + supplier_names().index(sname)), "name": sname},
+         "category": {"id": CAT_ID[c["cat"]], "name": c["cat"], "fullName": c["cat"]},
          "reconciliation": {"totalAmount": total, "currency": ccy, "baseTotalAmount": form_total,
                             "baseCurrency": "USD", "fxRate": fx, "customFields": []},
          "lineItems": [], "externalLinks": [], "document": doc}
     if period:  # Payhawk has no serviceEndDate; amortization holds the period (to confirm on a real account)
-        e["amortization"] = {"startDate": period[0], "endDate": period[1]}
+        e["amortization"] = {"startDate": period[0] + "T00:00:00Z", "endDate": period[1] + "T00:00:00Z"}
     return e
+
+
+def reference_data(expenses):
+    """Account-level data the expenses point at (categories, suppliers, users, custom fields)."""
+    users = {e["owner"]["id"]: {**e["owner"], "role": "user", "createdAt": "2026-01-01T00:00:00Z"} for e in expenses}
+    return {
+        "account": {"id": ACCOUNT, "name": "Demo BV", "uic": "NL000000000", "baseCurrency": "USD"},
+        "categories": [{"id": CAT_ID[n], "name": n, "fullName": n, "createdAt": "2026-01-01T00:00:00Z"} for n in CATEGORIES],
+        "suppliers": [{"id": str(301 + i), "name": n, "status": "active"} for i, n in enumerate(supplier_names())],
+        "users": list(users.values()),
+        "custom_fields": [{"id": CF_AI_REVIEW, "label": "AI review", "type": "free_text_input", "isRequired": False}],
+        "payments": {},  # all fixture expenses are unpaid reimbursables
+    }
+
+
+SEMANTIC = {"note_mismatch": "The note '{note}' does not describe this receipt ({merchant}).",
+            "category_mismatch": "Category {cat} does not fit this purchase ({merchant})."}
+
+
+def llm_fixtures(c, total):
+    """Recorded LLM answers for LLM_MODE=replay: what a correct extraction / rules call returns for this case."""
+    ccy, number, date, period = c["r"]
+    extraction = {"merchant": c["merchant"], "receipt_number": number, "date": date, "total": total, "currency": ccy,
+                  "service_start": period[0] if period else "", "service_end": period[1] if period else "",
+                  "items": [d for d, _ in c["lines"]], "legibility": 0.2 if c.get("blur") else 0.95}
+    flags = [{"name": f, "description": SEMANTIC[f].format(**c)} for f in c["expect"] if f in SEMANTIC]
+    return extraction, {"flags": flags, "category_fix": c.get("fix", {}).get("category", "")}
 
 
 def main():
@@ -133,10 +175,14 @@ def main():
     for c in CASES:
         total = draw_receipt(c, OUT / "receipts" / f"f-{c['id']}.png")
         expenses.append(expense(c, total))
+        for kind, data in zip(("extract", "rules"), llm_fixtures(c, total)):
+            (OUT / "llm" / kind).mkdir(parents=True, exist_ok=True)
+            (OUT / "llm" / kind / f"{'f-' if kind == 'extract' else ''}{c['id']}.json").write_text(json.dumps(data, indent=2))
         expected.append({"expense_id": c["id"], "status": "needs attention" if c["expect"] else "clean",
                          "flags": c["expect"], "duplicate_of": c.get("dup_of", ""),
                          "fixes": c.get("fix", {}), "action": c.get("action", ""), "action_source": c.get("source", "")})
     (OUT / "expenses.json").write_text(json.dumps({"items": expenses, "total": len(expenses)}, indent=2))
+    (OUT / "payhawk.json").write_text(json.dumps(reference_data(expenses), indent=2))
     (OUT / "expected.json").write_text(json.dumps(expected, indent=2))
     assert len({e["id"] for e in expenses}) == len(expenses)
     print(f"wrote {len(expenses)} receipts to {OUT}")

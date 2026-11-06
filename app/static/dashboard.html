@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Receipt Auditor</title>
+<style>
+:root{--bg:#0b0d10;--panel:#12151a;--line:#1f242c;--line2:#2a313b;--tx:#e6e9ee;--mut:#7d8795;--acc:#c6f24e;--warn:#ffb454;--bad:#ff6b6b;--ok:#4ade80;
+--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;--sans:-apple-system,"Inter","Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:13.5px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(900px 400px at 85% -10%,#c6f24e12,transparent 60%)}
+a{color:var(--mut);text-decoration:none}a:hover{color:var(--tx)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:0 24px;height:56px;background:#0b0d10d9;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em}.logo i{width:10px;height:10px;background:var(--acc);border-radius:2px;box-shadow:0 0 14px var(--acc)}
+.badge{font:600 10.5px var(--mono);letter-spacing:.08em;padding:3px 7px;border-radius:4px;border:1px solid var(--line2);color:var(--warn)}.badge.LIVE{color:var(--bad);border-color:#ff6b6b55}
+.sp{flex:1}
+button,.btn{font:500 12.5px var(--sans);color:var(--tx);background:var(--panel);border:1px solid var(--line2);padding:6px 12px;border-radius:7px;cursor:pointer;transition:.15s}
+button:hover{border-color:#47515f;background:#181c22}button.pri{background:var(--acc);color:#0b0d10;border-color:var(--acc);font-weight:650}button.pri:hover{filter:brightness(1.08)}
+button.bad{color:var(--bad)}button:disabled{opacity:.5}
+.wrap{max-width:1280px;margin:0 auto;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px}
+.stat{background:var(--panel);padding:16px 18px}.stat b{display:block;font:600 28px var(--mono);letter-spacing:-.03em;margin-top:4px}.stat span{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.09em}
+.tools{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0;background:transparent;color:var(--mut);padding:6px 14px}
+.seg button.on{background:#1b2027;color:var(--tx)}
+input{background:var(--panel);border:1px solid var(--line2);color:var(--tx);padding:7px 11px;border-radius:8px;width:240px;font:inherit;outline:0}input:focus{border-color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{border-collapse:collapse;width:100%}th{font:500 11px var(--sans);text-transform:uppercase;letter-spacing:.09em;color:var(--mut);text-align:left;padding:11px 16px;border-bottom:1px solid var(--line)}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border:0}tbody tr{cursor:pointer;transition:background .12s}tbody tr:hover,tbody tr.sel{background:#171b21}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}.mut{color:var(--mut)}.r{text-align:right}
+.pill{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--sans);padding:2px 9px;border-radius:99px;border:1px solid}
+.pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.clean{color:var(--ok);border-color:#4ade8040}.pill.needs{color:var(--warn);border-color:#ffb45440}
+.tag{font:500 11px var(--mono);color:var(--tx);background:#1b2027;border:1px solid var(--line2);padding:2px 7px;border-radius:5px;white-space:nowrap}
+.act{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase}.act.approve{color:var(--ok)}.act.reject{color:var(--bad)}
+.empty{padding:60px;text-align:center;color:var(--mut)}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:440px;background:var(--panel);border-left:1px solid var(--line2);transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:10;display:flex;flex-direction:column;box-shadow:-30px 0 60px #0008}
+#drawer.open{transform:none}.dh{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}.dh h3{margin:0;font:600 15px var(--mono)}
+.db{flex:1;overflow:auto;padding:18px 20px}.db img{width:100%;border:1px solid var(--line2);border-radius:8px;background:#fff}
+.note{margin:16px 0;padding:12px 14px;border-left:2px solid var(--warn);background:#ffb45410;border-radius:0 8px 8px 0}.note.ok{border-color:var(--ok);background:#4ade8010}
+dl{display:grid;grid-template-columns:130px 1fr;gap:9px 12px;margin:0}dt{color:var(--mut);font-size:12px}dd{margin:0;word-break:break-word}
+.df{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--line)}.df .sp{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;transition:.25s;background:#1b2027;border:1px solid var(--line2);padding:9px 16px;border-radius:8px;font:12px var(--mono)}#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+<header>
+  <div class="logo"><i></i>Receipt Auditor</div><span id="badge" class="badge"></span><span class="sp"></span>
+  <a href="/api/export.csv">Export CSV</a>
+  <button id="bDecide" onclick="run('decide')">Apply actions</button><button id="bPoll" class="pri" onclick="run('poll')">Poll now</button>
+</header>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="tools">
+    <div class="seg"><button data-f="">All</button><button data-f="needs attention">Needs attention</button><button data-f="clean">Clean</button></div>
+    <input id="q" placeholder="Search employee, supplier, flag…"><span class="sp"></span><span class="mut mono" id="count"></span>
+  </div>
+  <div class="card"><table><thead><tr><th>ID</th><th>Employee</th><th>Supplier</th><th class="r">Amount</th><th>Status</th><th>Flag</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<aside id="drawer"></aside><div id="toast"></div>
+<script>
+let data=[],f="",cur=null;const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pill=s=>`<span class="pill ${s=="clean"?"clean":"needs"}">${esc(s)}</span>`;
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+async function load(){data=await (await fetch("/api/reviews")).json();draw()}
+function draw(){
+  const n=s=>data.filter(r=>r.status===s).length, auto=data.filter(r=>r.action_source.startsWith("auto_")).length;
+  $("stats").innerHTML=[["Reviewed",data.length],["Needs attention",n("needs attention")],["Clean",n("clean")],["Auto-approved",auto]].map(([l,v])=>`<div class="stat"><span>${l}</span><b>${v}</b></div>`).join("");
+  const q=$("q").value.toLowerCase();document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
+  const rs=data.filter(r=>(!f||r.status===f)&&JSON.stringify(r).toLowerCase().includes(q));$("count").textContent=rs.length+" shown";
+  $("rows").innerHTML=rs.length?rs.map(r=>`<tr class="${r.expense_id===cur?"sel":""}" onclick="open_('${esc(r.expense_id)}')"><td class="mono mut">${esc(r.expense_id)}</td><td>${esc(r.employee)}</td><td>${esc(r.supplier)}</td><td class="mono r">${Number(r.total_amount).toFixed(2)} <span class="mut">${esc(r.total_currency)}</span></td><td>${pill(r.status)}</td><td>${r.category_for_attention?`<span class="tag">${esc(r.category_for_attention)}</span>`:""}</td><td class="act ${esc(r.action)}">${esc(r.action)}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">No reviews yet. Press <b>Poll now</b>.</td></tr>`}
+async function open_(id){cur=id;const {row:r}=await (await fetch("/api/reviews/"+id)).json();draw();
+  const rows=[["Employee",r.employee],["Supplier",r.supplier],["Category",r.category],["Note",r.note],["Document no.",r.document_number],["Document date",r.document_date],["Form amount",`${r.form_amount} ${r.form_currency}`],["Receipt total",`${r.receipt_total} ${r.receipt_currency}`],["Duplicate of",r.duplicate_of],["Applied",r.changes_applied],["Action source",r.action_source]].filter(x=>x[1]!==""&&x[1]!=null);
+  $("drawer").innerHTML=`<div class="dh"><h3>#${esc(r.expense_id)}</h3>${pill(r.status)}<span class="sp" style="flex:1"></span><button onclick="closeD()">Close</button></div>
+  <div class="db"><img src="${esc(r.receipt_link)}" alt="receipt">
+  <div class="note ${r.status=="clean"?"ok":""}">${esc(r.description)||"No issues found."}</div>
+  <dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd class="${/amount|total|no\.|date/i.test(k)?"mono":""}">${esc(v)}</dd>`).join("")}</dl></div>
+  <div class="df"><button class="pri" onclick="act('${esc(id)}','approve')">Approve</button><button class="bad" onclick="act('${esc(id)}','reject')">Reject</button><span class="sp"></span><button onclick="act('${esc(id)}','')">Clear</button></div>`;
+  $("drawer").classList.add("open")}
+function closeD(){cur=null;$("drawer").classList.remove("open");draw()}
+async function act(id,a){await fetch(`/api/reviews/${id}/action`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:a})});toast(a?`${a} → #${id}`:`cleared #${id}`);await load();open_(id)}
+async function run(k){const b=$(k=="poll"?"bPoll":"bDecide");b.disabled=true;const r=await (await fetch("/api/runs/"+k,{method:"POST"})).json();b.disabled=false;toast(k=="poll"?`Polled: ${r.reviewed} reviewed of ${r.seen}`:`Applied ${r.applied} action(s)`);load()}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{f=b.dataset.f;draw()});$("q").oninput=draw;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeD()});
+fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").textContent=i.mode;$("badge").classList.add(i.mode)});load();
+</script>

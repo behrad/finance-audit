@@ -1,0 +1,13 @@
+{
+  "merchant": "Parking Q-Park",
+  "receipt_number": "QP-501",
+  "date": "2026-11-04",
+  "total": 19.5,
+  "currency": "USD",
+  "service_start": "",
+  "service_end": "",
+  "items": [
+    "Parking 4h"
+  ],
+  "legibility": 0.2
+}
