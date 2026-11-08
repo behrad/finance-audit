@@ -1,6 +1,7 @@
 """Write-back to Payhawk (SPEC §7). PATCH only works on drafts; approve = mark `ready`; reject = comment."""
 import hashlib
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from app.store import Store
@@ -11,7 +12,7 @@ class Switches:
     patch: bool = True
     mark_ready: bool = True
     comment: bool = True
-    dry_run: bool = False  # P10: on until the first verified live run; mock mode always writes
+    dry_run: bool = field(default_factory=lambda: os.getenv("WRITEBACK_DRY_RUN") == "1")  # P10: set in .env for live; unset = writes
 
 
 def _call(store: Store, cfg: Switches, eid: str, what: str, fn, *args, **kw):

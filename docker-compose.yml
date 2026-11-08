@@ -1,10 +1,10 @@
 services:
   app:
     build: .
-    ports: ["8080:8080"]
+    ports: ["${PORT:-8080}:8080"]
     environment:
       FIRESTORE_EMULATOR_HOST: firestore:8081
-      LLM_MODE: replay   # zero keys needed in mock mode
+      DOTENV_PRIVATE_KEY: ${DOTENV_PRIVATE_KEY:-}   # decrypts the baked-in .env; start.sh --docker exports it from .env.keys
     depends_on: [firestore]
   firestore:
     image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators

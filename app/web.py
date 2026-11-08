@@ -1,5 +1,10 @@
+import asyncio
 import csv
 import io
+import os
+import re
+import time
+from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 
@@ -11,9 +16,31 @@ from app import jobs
 from app.payhawk.client import PayhawkClient
 from app.payhawk.mock import router as mock_payhawk
 from app.rows import COLUMNS, row
+from app.skills import SkillRegistry
 from app.store import Store
+from app.writeback import Switches
 
-app = FastAPI(title="Receipt Auditor")
+
+def poll_interval() -> int:
+    return int(os.getenv("POLL_INTERVAL_SECONDS") or 0)  # 0 = manual only
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    async def loop():
+        while True:
+            await asyncio.sleep(poll_interval())
+            try:
+                await asyncio.to_thread(jobs.poll, make_client(), store)
+            except Exception as e:  # keep the loop alive; the failure is visible in the run log
+                store.runs.append({"kind": "poll", "error": str(e)[:200]})
+    task = asyncio.create_task(loop()) if poll_interval() > 0 else None
+    yield
+    if task:
+        task.cancel()
+
+
+app = FastAPI(title="Receipt Auditor", lifespan=lifespan)
 app.include_router(mock_payhawk)
 store = Store()
 
@@ -39,6 +66,39 @@ def dashboard():
 @app.get("/api/info")
 def info():
     return {"mode": "MOCK" if "mock-payhawk" in make_client().base_url else "LIVE", "today": date.today().isoformat()}
+
+
+def _settings() -> dict:
+    url = make_client().base_url
+    mock = "mock-payhawk" in url
+    m = re.search(r"/accounts/([^/]+)", url)
+    skill = SkillRegistry().get()
+    mode = os.getenv("LLM_MODE", "replay")
+    last = next((r for r in reversed(store.runs) if r["kind"] == "poll" and "duration_s" in r), None)
+    return {
+        "mode": "MOCK" if mock else "LIVE", "data_source": "Built-in mock (fixtures)" if mock else "Payhawk API",
+        "payhawk_host": re.sub(r"^https?://([^/]+).*", r"\1", url), "account_id": m.group(1) if m else None,
+        "last_poll": last, "poll_interval_s": poll_interval(),
+        "llm": {"mode": mode, "provider": "Google (Gemini)" if skill.model.startswith("gemini") else "other",
+                "model": skill.model, "calls_model": mode == "live"},
+        "writeback_dry_run": Switches().dry_run, "poll_limit": int(os.getenv("POLL_LIMIT") or 0) or None,
+    }
+
+
+@app.get("/api/settings")
+def settings():
+    return _settings()
+
+
+@app.post("/api/settings/test-connection")
+def test_connection():
+    """Real read against the configured Payhawk (or mock) to prove where data comes from."""
+    t = time.perf_counter()
+    try:
+        a = make_client().account()
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:200]}
+    return {"ok": True, "account_id": a.get("id"), "account_name": a.get("name"), "latency_ms": round((time.perf_counter() - t) * 1000)}
 
 
 @app.get("/api/reviews")

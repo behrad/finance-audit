@@ -1,6 +1,6 @@
 ---
 name: payhawk-default
-model: gemini-3.8-flash   # P13: name not confirmed yet, verify in the Vertex model list
+model: gemini-3.5-flash   # verified in the AI Studio model list; 3.8-flash returned 503 "high demand"
 flags: [duplicate, wrong_exchange_rate, wrong_value, total_mismatch, note_mismatch,
         supplier_not_employee, category_mismatch, date_mismatch,
         service_period_out_of_range, number_mismatch, unreadable_receipt]

@@ -41,7 +41,29 @@ Not exercised yet. The model name `gemini-3.8-flash` in `skills/default/SKILL.md
 
 ### Live Payhawk (optional)
 
-`PAYHAWK_BASE_URL=https://api.payhawk.com/api/v3/accounts/<id> PAYHAWK_API_KEY=...` switches the client (badge shows LIVE).
+Secrets live in the committed, **encrypted** `.env` ([dotenvx](https://dotenvx.com)); the private key is in `.env.keys` (gitignored, never commit, never bake into an image).
+Get `.env.keys` from a teammate / the password manager, then:
+
+```bash
+npx @dotenvx/dotenvx run -- uv run uvicorn app.web:app --port 8080   # live Payhawk (badge shows LIVE)
+npx @dotenvx/dotenvx set NAME value                                  # add/change a secret (re-encrypts .env)
+```
+
+Start / stop (needs `.env.keys`; `PORT=8081` if 8080 is busy):
+
+```bash
+./scripts/start.sh            # local, background; logs in data/service.log
+./scripts/stop.sh
+./scripts/start.sh --docker   # docker compose (builds the image, passes DOTENV_PRIVATE_KEY from .env.keys)
+./scripts/stop.sh  --docker
+```
+
+The **Settings** page in the UI shows mock vs live, Payhawk host/account id, last poll duration, poll interval
+(`POLL_INTERVAL_SECONDS`, 0 = manual), LLM provider/model/mode, and write-back dry-run, plus a "Test Payhawk connection" button.
+
+Docker / Google Cloud: ship the encrypted `.env` in the image, never `.env.keys`. Provide the key at runtime as the single env var
+`DOTENV_PRIVATE_KEY` (Cloud Run: Secret Manager secret exposed as env var; compose: `DOTENV_PRIVATE_KEY=$(...)` from your shell).
+Without it the app falls back to the mock. Variable names are `PAYHAWK_API_KEY` and `PAYHAWK_BASE_URL` (see `.env.example`).
 Not tested against a real account. Write-back has a `dry_run` switch (`app/writeback.py` `Switches`) that should be on for the first live run;
 it currently defaults to **off** and is not yet configurable from env or UI.
 

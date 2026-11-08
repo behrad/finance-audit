@@ -41,10 +41,14 @@ dl{display:grid;grid-template-columns:130px 1fr;gap:9px 12px;margin:0}dt{color:v
 </style>
 <header>
   <div class="logo"><i></i>Receipt Auditor</div><span id="badge" class="badge"></span><span class="sp"></span>
-  <a href="/api/export.csv">Export CSV</a>
+  <a href="#" id="navDash" onclick="show('');return false">Reviews</a><a href="#settings" id="navSet" onclick="show('settings');return false">Settings</a><a href="/api/export.csv">Export CSV</a>
   <button id="bDecide" onclick="run('decide')">Apply actions</button><button id="bPoll" class="pri" onclick="run('poll')">Poll now</button>
 </header>
-<div class="wrap">
+<div class="wrap" id="settings" hidden>
+  <div class="card" style="padding:6px 20px"><table id="setTbl"><tbody></tbody></table></div>
+  <p><button id="bTest" onclick="testConn()">Test Payhawk connection</button> <span class="mut mono" id="testOut"></span></p>
+</div>
+<div class="wrap" id="main">
   <div class="stats" id="stats"></div>
   <div class="tools">
     <div class="seg"><button data-f="">All</button><button data-f="needs attention">Needs attention</button><button data-f="clean">Clean</button></div>
@@ -75,8 +79,21 @@ async function open_(id){cur=id;const {row:r}=await (await fetch("/api/reviews/"
   $("drawer").classList.add("open")}
 function closeD(){cur=null;$("drawer").classList.remove("open");draw()}
 async function act(id,a){await fetch(`/api/reviews/${id}/action`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:a})});toast(a?`${a} → #${id}`:`cleared #${id}`);await load();open_(id)}
-async function run(k){const b=$(k=="poll"?"bPoll":"bDecide");b.disabled=true;const r=await (await fetch("/api/runs/"+k,{method:"POST"})).json();b.disabled=false;toast(k=="poll"?`Polled: ${r.reviewed} reviewed of ${r.seen}`:`Applied ${r.applied} action(s)`);load()}
+async function run(k){const b=$(k=="poll"?"bPoll":"bDecide");b.disabled=true;const r=await (await fetch("/api/runs/"+k,{method:"POST"})).json();b.disabled=false;toast(k=="poll"?`Polled: ${r.reviewed} reviewed of ${r.seen}${r.failed?`, ${r.failed} failed (see Settings/log)`:""}`:`Applied ${r.applied} action(s)`);load()}
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{f=b.dataset.f;draw()});$("q").oninput=draw;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeD()});
-fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").textContent=i.mode;$("badge").classList.add(i.mode)});load();
+const ago=t=>t?new Date(t).toLocaleString():"never";
+async function loadSettings(){const x=await (await fetch("/api/settings")).json(),lp=x.last_poll,l=x.llm;
+const R=[["Data source",x.mode=="LIVE"?"LIVE — read from the Payhawk API":"MOCK — built-in fixtures, nothing leaves this machine"],
+["Payhawk host",x.mode=="LIVE"?x.payhawk_host:"— (mock)"],["Account ID",x.account_id||"— (mock)"],
+["Last poll",lp?`${ago(lp.at)} — ${lp.duration_s}s, ${lp.seen} seen, ${lp.reviewed} reviewed`:"no poll yet in this process"],
+["Poll interval",x.poll_interval_s?`every ${x.poll_interval_s}s`:"off — manual (Poll now)"],
+["Poll limit",x.poll_limit?`${x.poll_limit} expenses per poll`:"none"],
+["LLM provider",l.provider],["LLM model",l.model],["LLM mode",l.calls_model?"live — calls the model":"replay — recorded answers, no model call"],
+["Write-back",x.writeback_dry_run?"DRY RUN — nothing is written to Payhawk":"ON — writes to Payhawk"]];
+$("setTbl").tBodies[0].innerHTML=R.map(([k,v])=>`<tr><td class="mut" style="width:200px">${k}</td><td class="mono">${String(v).replace(/</g,"&lt;")}</td></tr>`).join("")}
+async function testConn(){$("testOut").textContent="…";const r=await (await fetch("/api/settings/test-connection",{method:"POST"})).json();
+$("testOut").textContent=r.ok?`OK — ${r.account_name} (${r.account_id}) in ${r.latency_ms} ms`:"FAILED — "+r.error}
+function show(v){$("settings").hidden=v!="settings";$("main").hidden=v=="settings";location.hash=v;if(v=="settings")loadSettings()}
+fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").textContent=i.mode;$("badge").classList.add(i.mode)});load();if(location.hash=="#settings")show("settings");
 </script>

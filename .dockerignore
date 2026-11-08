@@ -3,3 +3,5 @@
 tests
 docs
 __pycache__
+.env.keys
+.env.local

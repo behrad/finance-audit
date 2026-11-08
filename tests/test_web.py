@@ -25,3 +25,11 @@ def test_dashboard_flow(api):
     assert api.get("/api/receipts/1001/f-1001").content[:4] == b"\x89PNG"
     assert len(list(csv.DictReader(io.StringIO(api.get("/api/export.csv").text)))) == 14
     assert api.get("/api/info").json()["mode"] == "MOCK"
+
+
+def test_settings(api, monkeypatch):
+    monkeypatch.setenv("POLL_INTERVAL_SECONDS", "300")
+    api.post("/api/runs/poll")
+    s = api.get("/api/settings").json()
+    assert s["mode"] == "MOCK" and s["poll_interval_s"] == 300 and s["last_poll"]["duration_s"] >= 0
+    assert s["llm"]["model"] and api.post("/api/settings/test-connection").json()["ok"]
