@@ -13,11 +13,13 @@ from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
 from app import jobs
+from app.pipeline import llm
 from app.payhawk.client import PayhawkClient
 from app.payhawk.mock import router as mock_payhawk
 from app.rows import COLUMNS, row
 from app.skills import SkillRegistry
 from app.store import Store
+from app import writeback
 from app.writeback import Switches
 
 
@@ -79,14 +81,44 @@ def _settings() -> dict:
         "mode": "MOCK" if mock else "LIVE", "data_source": "Built-in mock (fixtures)" if mock else "Payhawk API",
         "payhawk_host": re.sub(r"^https?://([^/]+).*", r"\1", url), "account_id": m.group(1) if m else None,
         "last_poll": last, "poll_interval_s": poll_interval(),
-        "llm": {"mode": mode, "provider": "Google (Gemini)" if skill.model.startswith("gemini") else "other",
-                "model": skill.model, "calls_model": mode == "live"},
+        "llm": {"mode": mode, "provider": "Custom (LiteLLM)" if llm.override else "Google (Gemini)" if skill.model.startswith("gemini") else "other",
+                "model": llm.override["model"] if llm.override else skill.model, "custom": bool(llm.override), "calls_model": mode == "live"},
         "writeback_dry_run": Switches().dry_run, "poll_limit": int(os.getenv("POLL_LIMIT") or 0) or None,
     }
 
 
 @app.get("/api/settings")
 def settings():
+    return _settings()
+
+
+class LlmOverride(BaseModel):
+    model: str   # LiteLLM name, e.g. "openai/gpt-4o"
+    api_key: str
+
+
+@app.put("/api/settings/llm")
+def set_llm(body: LlmOverride):
+    model, key = body.model.strip(), body.api_key.strip()
+    if not model or not key:
+        raise HTTPException(400, "model and api_key are required")
+    llm.override = {"model": model, "api_key": key}  # the key is never returned by any endpoint
+    return _settings()["llm"]
+
+
+@app.delete("/api/settings/llm")
+def clear_llm():
+    llm.override = None
+    return _settings()["llm"]
+
+
+class DryRun(BaseModel):
+    dry_run: bool
+
+
+@app.put("/api/settings/writeback")
+def set_writeback(body: DryRun):
+    writeback.dry_run_override = body.dry_run
     return _settings()
 
 
@@ -132,6 +164,11 @@ def run_poll():
 @app.post("/api/runs/decide")
 def run_decide():
     return jobs.decide(make_client(), store)
+
+
+@app.get("/api/logs")
+def logs():
+    return store.poll_logs[::-1]  # newest first
 
 
 @app.get("/api/runs")

@@ -41,12 +41,21 @@ dl{display:grid;grid-template-columns:130px 1fr;gap:9px 12px;margin:0}dt{color:v
 </style>
 <header>
   <div class="logo"><i></i>Receipt Auditor</div><span id="badge" class="badge"></span><span class="sp"></span>
-  <a href="#" id="navDash" onclick="show('');return false">Reviews</a><a href="#settings" id="navSet" onclick="show('settings');return false">Settings</a><a href="/api/export.csv">Export CSV</a>
+  <a href="#" id="navDash" onclick="show('');return false">Reviews</a><a href="#settings" id="navSet" onclick="show('settings');return false">Settings</a><a href="#logs" onclick="show('logs');return false">Logs</a><a href="/api/export.csv">Export CSV</a>
   <button id="bDecide" onclick="run('decide')">Apply actions</button><button id="bPoll" class="pri" onclick="run('poll')">Poll now</button>
 </header>
 <div class="wrap" id="settings" hidden>
   <div class="card" style="padding:6px 20px"><table id="setTbl"><tbody></tbody></table></div>
+  <div class="card" style="padding:14px 20px;margin-top:16px"><b>Custom LLM</b> <span class="mut">— replaces Gemini (e.g. ChatGPT). Name uses LiteLLM format; held in memory until restart.</span>
+    <p><input id="llmModel" placeholder="openai/gpt-4o"> <input id="llmKey" type="password" placeholder="API key" autocomplete="off">
+    <button class="pri" onclick="saveLlm()">Save</button> <button onclick="saveLlm(true)">Reset to Gemini</button></p></div>
+  <div class="card" style="padding:14px 20px;margin-top:16px"><b>Write-back to Payhawk</b> <span class="mut">— resets to the .env value on restart.</span>
+    <p><button id="bWb" onclick="toggleWb()"></button></p></div>
   <p><button id="bTest" onclick="testConn()">Test Payhawk connection</button> <span class="mut mono" id="testOut"></span></p>
+</div>
+<div class="wrap" id="logs" hidden>
+  <p><select id="logSel" onchange="drawLog()"></select> <button onclick="loadLogs()">Refresh</button> <span class="mut mono" id="logCnt"></span></p>
+  <div id="logBody"></div>
 </div>
 <div class="wrap" id="main">
   <div class="stats" id="stats"></div>
@@ -91,9 +100,24 @@ const R=[["Data source",x.mode=="LIVE"?"LIVE — read from the Payhawk API":"MOC
 ["Poll limit",x.poll_limit?`${x.poll_limit} expenses per poll`:"none"],
 ["LLM provider",l.provider],["LLM model",l.model],["LLM mode",l.calls_model?"live — calls the model":"replay — recorded answers, no model call"],
 ["Write-back",x.writeback_dry_run?"DRY RUN — nothing is written to Payhawk":"ON — writes to Payhawk"]];
+wbDry=x.writeback_dry_run;$("bWb").textContent=wbDry?"Turn ON writes to Payhawk":"Back to DRY RUN";$("bWb").className=wbDry?"bad":"";
 $("setTbl").tBodies[0].innerHTML=R.map(([k,v])=>`<tr><td class="mut" style="width:200px">${k}</td><td class="mono">${String(v).replace(/</g,"&lt;")}</td></tr>`).join("")}
+async function saveLlm(reset){const r=await fetch("/api/settings/llm",reset?{method:"DELETE"}:{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({model:$("llmModel").value,api_key:$("llmKey").value})});
+if(!r.ok)return toast("Model and key are required");$("llmKey").value="";toast(reset?"Back to Gemini":"Custom LLM saved");loadSettings()}
+let wbDry=true;
+async function toggleWb(){if(wbDry&&!confirm("Approve/reject/patch will now be written to the real Payhawk account. Continue?"))return;
+await fetch("/api/settings/writeback",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({dry_run:!wbDry})});loadSettings()}
 async function testConn(){$("testOut").textContent="…";const r=await (await fetch("/api/settings/test-connection",{method:"POST"})).json();
 $("testOut").textContent=r.ok?`OK — ${r.account_name} (${r.account_id}) in ${r.latency_ms} ms`:"FAILED — "+r.error}
-function show(v){$("settings").hidden=v!="settings";$("main").hidden=v=="settings";location.hash=v;if(v=="settings")loadSettings()}
-fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").textContent=i.mode;$("badge").classList.add(i.mode)});load();if(location.hash=="#settings")show("settings");
+let logs=[];
+async function loadLogs(){logs=await (await fetch("/api/logs")).json();$("logSel").innerHTML=logs.map((l,i)=>`<option value="${i}">${ago(l.at)} — ${l.received} from Payhawk</option>`).join("");drawLog()}
+function drawLog(){const l=logs[$("logSel").value||0];if(!l){$("logBody").innerHTML='<div class="empty">No poll yet in this process.</div>';$("logCnt").textContent="";return}
+$("logCnt").textContent=l.received+" received, "+l.items.filter(i=>i.llm.length).length+" sent to LLM";
+$("logBody").innerHTML=l.items.map(i=>`<div class="card" style="padding:12px 18px;margin-bottom:10px"><b class="mono">#${esc(i.expense_id)}</b> ${esc(i.title||"")} <span class="mut">Payhawk: ${esc(i.payhawk_status)}</span>
+ <span class="tag" style="float:right;${i.state=="failed"?"color:var(--bad)":""}">${esc(i.state)}</span>
+ ${i.llm.length?i.llm.map(c=>`<details style="margin-top:8px"><summary><span class="mono">${esc(c.step)}</span> · ${esc(c.model)} · ${c.called_llm?"LLM called":"replay (no LLM call)"} · <span style="color:var(--${c.ok?"ok":"bad"})">${c.ok?"success":"error"}</span> · ${c.ms} ms</summary>
+ ${c.error?`<pre style="color:var(--bad);white-space:pre-wrap">${esc(c.error)}</pre>`:""}<pre class="mut" style="white-space:pre-wrap">${esc(c.response||"")}</pre></details>`).join(""):'<div class="mut" style="margin-top:6px">LLM not called</div>'}
+ ${i.error?`<pre style="color:var(--bad);white-space:pre-wrap">${esc(i.error)}</pre>`:""}${i.result?`<div class="mut mono" style="margin-top:6px">→ ${esc(i.result.status)} ${esc(i.result.flags.join(", "))}</div>`:""}</div>`).join("")||'<div class="empty">Nothing received.</div>'}
+function show(v){$("settings").hidden=v!="settings";$("logs").hidden=v!="logs";$("main").hidden=!!v;location.hash=v;if(v=="settings")loadSettings();if(v=="logs")loadLogs()}
+fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").textContent=i.mode;$("badge").classList.add(i.mode)});load();if(location.hash=="#settings")show("settings");if(location.hash=="#logs")show("logs");
 </script>

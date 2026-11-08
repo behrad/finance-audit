@@ -33,3 +33,30 @@ def test_settings(api, monkeypatch):
     s = api.get("/api/settings").json()
     assert s["mode"] == "MOCK" and s["poll_interval_s"] == 300 and s["last_poll"]["duration_s"] >= 0
     assert s["llm"]["model"] and api.post("/api/settings/test-connection").json()["ok"]
+
+
+def test_custom_llm(api):
+    from app.pipeline import llm
+    assert api.put("/api/settings/llm", json={"model": "openai/gpt-4o", "api_key": " "}).status_code == 400
+    r = api.put("/api/settings/llm", json={"model": "openai/gpt-4o", "api_key": "sk-secret"})
+    try:
+        assert r.json()["model"] == "openai/gpt-4o" and "sk-secret" not in api.get("/api/settings").text
+        assert llm._model(None).model == "openai/gpt-4o"
+    finally:
+        assert api.delete("/api/settings/llm").json()["custom"] is False
+
+
+def test_writeback_toggle(api):
+    from app import writeback
+    try:
+        assert api.put("/api/settings/writeback", json={"dry_run": False}).json()["writeback_dry_run"] is False
+    finally:
+        writeback.dry_run_override = None
+
+
+def test_logs(api):
+    api.post("/api/runs/poll")
+    log = api.get("/api/logs").json()[0]
+    assert log["received"] == 14
+    it = next(i for i in log["items"] if i["state"] == "reviewed")
+    assert {c["step"] for c in it["llm"]} <= {"extract", "rules"} and it["llm"][0]["ok"] and it["llm"][0]["called_llm"] is False
