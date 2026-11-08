@@ -5,3 +5,4 @@ __pycache__/
 secrets.local.json
 data/
 .DS_Store
+.env.env.keys
