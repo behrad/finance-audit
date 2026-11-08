@@ -14,6 +14,7 @@ class Store:
     comment_hashes: dict[str, set] = field(default_factory=dict)
     log: list[dict] = field(default_factory=list)             # write-back log
     runs: list[dict] = field(default_factory=list)
+    poll_logs: list[dict] = field(default_factory=list)       # last 10 polls: what Payhawk returned + LLM trace per expense
     ctx: Ctx = field(default_factory=lambda: Ctx(date.today()))  # holds duplicate fingerprints for the whole history
 
 

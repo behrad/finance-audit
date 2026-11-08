@@ -7,12 +7,15 @@ from datetime import UTC, datetime
 from app.store import Store
 
 
+dry_run_override: bool | None = None  # set from Settings; in-memory, so a restart falls back to the safe .env value
+
+
 @dataclass
 class Switches:
     patch: bool = True
     mark_ready: bool = True
     comment: bool = True
-    dry_run: bool = field(default_factory=lambda: os.getenv("WRITEBACK_DRY_RUN") == "1")  # P10: set in .env for live; unset = writes
+    dry_run: bool = field(default_factory=lambda: os.getenv("WRITEBACK_DRY_RUN") == "1" if dry_run_override is None else dry_run_override)  # P10: set in .env for live; unset = writes
 
 
 def _call(store: Store, cfg: Switches, eid: str, what: str, fn, *args, **kw):

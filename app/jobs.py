@@ -5,6 +5,7 @@ import sys
 import time
 from datetime import UTC, date, datetime, timedelta
 
+from app.pipeline import llm
 from app.payhawk.client import PayhawkClient
 from app.pipeline.run import review_expense
 from app.skills import SkillRegistry
@@ -17,21 +18,32 @@ def poll(client: PayhawkClient, store: Store, tenant="default", run_date: date |
     run_date, cfg, skill = run_date or date.today(), cfg or Switches(), SkillRegistry().get(tenant)
     store.ctx.run_date = run_date
     # date filter ignores time of day (R4): re-fetch a 2-day window; first run is a full backfill
-    flt = {"modifiedAt": {"$greaterThan": (run_date - timedelta(days=2)).isoformat()}} if store.runs else None
+    flt = {"modifiedAt": {"$greaterThan": (run_date - timedelta(days=2)).isoformat()}} if store.sigs else None  # nothing reviewed yet (fresh start or all failed) -> full backfill
     seen = reviewed = failed = 0
-    todo = [e for e in client.expenses(flt) if e["document"]["files"]]  # no receipt -> nothing to review
+    received = client.expenses(flt)
+    todo = [e for e in received if e["document"]["files"]]  # no receipt -> nothing to review
     todo = sorted(todo, key=lambda e: (e["createdAt"], e["id"]))[: int(os.getenv("POLL_LIMIT") or 10**9)]  # POLL_LIMIT: cap LLM spend on first live runs
+    ids = {e["id"] for e in todo}
+    item = lambda e, state: {"expense_id": e["id"], "title": e.get("title"), "payhawk_status": e.get("status"), "state": state, "llm": []}
+    items = [item(e, "skipped: no receipt" if not e["document"]["files"] else "skipped: over POLL_LIMIT") for e in received if e["id"] not in ids]
     for e in todo:
         seen += 1
         sig = (e["modifiedAt"], tuple(f["fileId"] for f in e["document"]["files"]))
+        it = item(e, "unchanged (already reviewed)")
+        items.append(it)
         if store.sigs.get(e["id"]) == sig:
             continue
+        tok = llm.sink.set(it["llm"])
         try:
             r = review_expense(e, skill, store.ctx, client)
         except Exception as ex:  # one bad receipt / model outage must not abort the poll; it is retried next poll (sig not saved)
             failed += 1
+            it["state"], it["error"] = "failed", f"{type(ex).__name__}: {str(ex)[:300]}"
             store.log.append({"expense_id": e["id"], "call": "review_failed", "error": f"{type(ex).__name__}: {str(ex)[:150]}"})
             continue
+        finally:
+            llm.sink.reset(tok)
+        it["state"], it["result"] = "reviewed", {k: r[k] for k in ("status", "flags", "description", "fixes", "action")}
         old = store.reviews.get(e["id"])
         if old and is_manual(old["action_source"]):  # P8: a human's action is never overwritten by the service
             r["action"], r["action_source"] = old["action"], old["action_source"]
@@ -40,7 +52,9 @@ def poll(client: PayhawkClient, store: Store, tenant="default", run_date: date |
         store.reviews[e["id"]], store.expenses[e["id"]], store.sigs[e["id"]] = r, e, sig
         apply(client, store, r, cfg)
         reviewed += 1
-    return _record(store, "poll", t0, seen=seen, reviewed=reviewed, failed=failed)
+    run = _record(store, "poll", t0, seen=seen, reviewed=reviewed, failed=failed)
+    store.poll_logs = (store.poll_logs + [{"at": run["at"], "received": len(received), "items": items}])[-10:]
+    return run
 
 
 def decide(client: PayhawkClient, store: Store, cfg: Switches | None = None) -> dict:
