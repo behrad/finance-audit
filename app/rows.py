@@ -1,7 +1,7 @@
 """One review + its Payhawk expense -> one sheet/dashboard/CSV row (SPEC §6 columns)."""
 COLUMNS = ["expense_id", "employee", "supplier", "category", "note", "document_date", "service_start", "service_end",
            "document_number", "form_amount", "form_currency", "total_amount", "total_currency", "receipt_total",
-           "receipt_currency", "receipt_link", "status", "category_for_attention", "description", "action",
+           "receipt_currency", "receipt_link", "status", "category_for_attention", "description", "action", "comment",
            "changes_applied", "duplicate_role", "duplicate_of", "action_source", "processed_at", "skill_version", "model"]
 
 
@@ -18,6 +18,6 @@ def row(e: dict, r: dict) -> dict:
         "receipt_total": r["receipt"]["total"], "receipt_currency": r["receipt"]["currency"],
         "receipt_link": f"/api/receipts/{e['id']}/{doc['files'][0]['fileId']}",
         "duplicate_role": "duplicate" if r["duplicate_of"] else "", **{
-            k: r.get(k, "") for k in ("status", "category_for_attention", "description", "action", "changes_applied",
+            k: r.get(k, "") for k in ("status", "category_for_attention", "description", "action", "comment", "changes_applied",
                                       "duplicate_of", "action_source", "processed_at", "skill_version", "model")},
     }

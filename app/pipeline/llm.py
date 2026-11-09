@@ -14,7 +14,7 @@ REPLAY = Path(__file__).resolve().parents[2] / "fixtures" / "llm"
 # Set from Settings (app/web.py): {"model": "openai/gpt-4o", "api_key": "..."}. Overrides the skill's Gemini model via LiteLLM.
 # shortcut: in-memory only, lost on restart (never persist a secret to disk here); move to a secret store before multi-tenant.
 override: dict | None = None
-# jobs.poll points this at a per-expense list; each LLM step appends {step, model, called_llm, ok, ms, response|error} for the Logs page.
+# jobs.analyze points this at a per-expense list; each LLM step appends {step, model, called_llm, ok, ms, response|error} for the Logs page.
 sink: contextvars.ContextVar[list | None] = contextvars.ContextVar("llm_sink", default=None)
 EXTRACT_PROMPT = ("Read this receipt and extract its fields. Dates as YYYY-MM-DD. total is the amount actually paid. "
                   "legibility is 0..1: how confidently you could read it.")

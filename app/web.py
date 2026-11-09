@@ -32,10 +32,12 @@ async def lifespan(_app):
     async def loop():
         while True:
             await asyncio.sleep(poll_interval())
+            if not store.auto_poll:
+                continue
             try:
-                await asyncio.to_thread(jobs.poll, make_client(), store)
+                await asyncio.to_thread(jobs.fetch, make_client(), store)  # fetch only, never analyze
             except Exception as e:  # keep the loop alive; the failure is visible in the run log
-                store.runs.append({"kind": "poll", "error": str(e)[:200]})
+                store.runs.append({"kind": "fetch", "error": str(e)[:200]})
     task = asyncio.create_task(loop()) if poll_interval() > 0 else None
     yield
     if task:
@@ -76,14 +78,15 @@ def _settings() -> dict:
     m = re.search(r"/accounts/([^/]+)", url)
     skill = SkillRegistry().get()
     mode = os.getenv("LLM_MODE", "replay")
-    last = next((r for r in reversed(store.runs) if r["kind"] == "poll" and "duration_s" in r), None)
+    last = lambda k: next((r for r in reversed(store.runs) if r["kind"] == k and "duration_s" in r), None)
     return {
         "mode": "MOCK" if mock else "LIVE", "data_source": "Built-in mock (fixtures)" if mock else "Payhawk API",
         "payhawk_host": re.sub(r"^https?://([^/]+).*", r"\1", url), "account_id": m.group(1) if m else None,
-        "last_poll": last, "poll_interval_s": poll_interval(),
+        "last_fetch": last("fetch"), "last_analyze": last("analyze"), "poll_interval_s": poll_interval(),
+        "auto_poll": store.auto_poll, "poll_limit": store.poll_limit, "pending": len(jobs.pending(store, skill)),
         "llm": {"mode": mode, "provider": "Custom (LiteLLM)" if llm.override else "Google (Gemini)" if skill.model.startswith("gemini") else "other",
                 "model": llm.override["model"] if llm.override else skill.model, "custom": bool(llm.override), "calls_model": mode == "live"},
-        "writeback_dry_run": Switches().dry_run, "poll_limit": int(os.getenv("POLL_LIMIT") or 0) or None,
+        "writeback_dry_run": Switches().dry_run,
     }
 
 
@@ -110,6 +113,23 @@ def set_llm(body: LlmOverride):
 def clear_llm():
     llm.override = None
     return _settings()["llm"]
+
+
+class PollCfg(BaseModel):
+    auto_poll: bool | None = None
+    poll_limit: int | None = None
+
+
+@app.put("/api/settings/poll")
+def set_poll(body: PollCfg):
+    given = body.model_fields_set
+    if "poll_limit" in given and body.poll_limit is not None and body.poll_limit < 1:
+        raise HTTPException(400, "poll_limit must be >= 1 or null")
+    if "poll_limit" in given:
+        store.poll_limit = body.poll_limit
+    if body.auto_poll is not None:
+        store.auto_poll = body.auto_poll
+    return _settings()
 
 
 class DryRun(BaseModel):
@@ -146,24 +166,86 @@ def review(eid: str):
 
 
 class Action(BaseModel):
-    action: str  # approve | reject | "" (clear)
+    action: str  # approve | ask_review | "" (clear)
+    comment: str = ""
 
 
 @app.post("/api/reviews/{eid}/action")
 def action(eid: str, body: Action):
-    if eid not in store.reviews or body.action not in ("approve", "reject", ""):
+    if eid not in store.reviews or body.action not in ("approve", "ask_review", ""):
         raise HTTPException(400, "bad expense or action")
-    return jobs.set_action(make_client(), store, eid, body.action)
+    return jobs.set_action(make_client(), store, eid, body.action, body.comment)
 
 
-@app.post("/api/runs/poll")
-def run_poll():
-    return jobs.poll(make_client(), store)
+@app.post("/api/runs/fetch")
+def run_fetch():
+    return jobs.fetch(make_client(), store)
+
+
+@app.post("/api/runs/analyze")
+def run_analyze():
+    return jobs.analyze(make_client(), store)
 
 
 @app.post("/api/runs/decide")
 def run_decide():
     return jobs.decide(make_client(), store)
+
+
+def _item(eid: str) -> dict:
+    e = store.expenses[eid]
+    o, rec, doc, r = e.get("owner") or {}, e.get("reconciliation") or {}, e.get("document") or {}, store.reviews.get(eid)
+    files = doc.get("files", [])
+    state = ("no receipt" if not files else "failed" if eid in store.failed else "new" if not r else
+             "changed" if store.sigs.get(eid) != store.feed_sigs.get(eid) else
+             "rules changed" if r["skill_version"] != SkillRegistry().get().version else "analyzed")
+    return {"expense_id": eid, "title": e.get("title", ""), "employee": f"{o.get('firstName', '')} {o.get('lastName', '')}".strip(),
+            "supplier": (e.get("supplier") or {}).get("name", ""), "category": (e.get("category") or {}).get("name", ""),
+            "note": e.get("note", ""), "amount": rec.get("totalAmount", ""), "currency": rec.get("currency", ""),
+            "payhawk_status": e.get("status", ""), "document_date": (doc.get("documentDate") or "")[:10], "created_at": e.get("createdAt", ""),
+            "files": [{"url": f"/api/receipts/{eid}/{f['fileId']}", "content_type": f.get("contentType", ""), "name": f.get("name", "")} for f in files],
+            "state": state, "error": store.failed.get(eid, "")}
+
+
+@app.get("/api/feed")
+def feed():
+    return [_item(i) for i in sorted(store.expenses, key=lambda i: (store.expenses[i].get("createdAt", ""), i), reverse=True)]
+
+
+@app.get("/api/feed/{eid}")
+def feed_item(eid: str):
+    if eid not in store.expenses:
+        raise HTTPException(404, "unknown expense")
+    return {"item": _item(eid), "raw": store.expenses[eid]}
+
+
+class Rules(BaseModel):
+    text: str
+
+
+def _rules() -> dict:
+    reg = SkillRegistry()
+    return {"text": reg.text(), "default": reg.default_text(), "custom": reg.custom()}
+
+
+@app.get("/api/rules")
+def get_rules():
+    return _rules()
+
+
+@app.put("/api/rules")
+def put_rules(body: Rules):
+    try:
+        SkillRegistry().save("default", body.text)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return _rules()
+
+
+@app.delete("/api/rules")
+def reset_rules():
+    SkillRegistry().reset()
+    return _rules()
 
 
 @app.get("/api/logs")
@@ -185,9 +267,14 @@ def export_csv():
     return Response(out.getvalue(), media_type="text/csv")
 
 
+_receipts: dict[str, bytes] = {}
+
+
 @app.get("/api/receipts/{eid}/{fid}")
 def receipt(eid: str, fid: str):
     f = next((f for f in store.expenses.get(eid, {}).get("document", {}).get("files", []) if f["fileId"] == fid), None)
     if not f:
         raise HTTPException(404, "unknown receipt")
-    return Response(make_client().download(f), media_type=f["contentType"])
+    if fid not in _receipts:  # shortcut: unbounded in-memory cache, bound it before large tenants
+        _receipts[fid] = make_client().download(f)
+    return Response(_receipts[fid], media_type=f["contentType"])

@@ -1,4 +1,4 @@
-"""Write-back to Payhawk (SPEC §7). PATCH only works on drafts; approve = mark `ready`; reject = comment."""
+"""Write-back to Payhawk (SPEC §7). PATCH only works on drafts; approve = mark `ready`; ask_review = comment."""
 import hashlib
 import os
 from dataclasses import dataclass, field
@@ -61,8 +61,8 @@ def apply(client, store: Store, review: dict, cfg: Switches) -> None:
             _call(store, cfg, eid, "status", client.set_status, eid, "ready")
         if e["status"] == "ready" or (draft and cfg.mark_ready and not cfg.dry_run):  # already reviewed counts as done
             review["action_done"] = "approve"
-    elif action == "reject" and cfg.comment:
-        _comment_once(client, store, cfg, eid, f"Receipt Auditor: rejected by finance. {review['description']}".strip())
-        review["action_done"] = "reject"
+    elif action == "ask_review" and cfg.comment:
+        _comment_once(client, store, cfg, eid, f"Receipt Auditor: review requested by finance. {review.get('comment') or review['description']}".strip())
+        review["action_done"] = "ask_review"
     elif not action and review["status"] == "needs attention" and cfg.comment:
         _comment_once(client, store, cfg, eid, f"Receipt Auditor: needs attention. {review['description']}")
