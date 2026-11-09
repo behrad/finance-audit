@@ -18,3 +18,8 @@ def http():
 @pytest.fixture
 def client(http):
     return PayhawkClient(base_url="http://testserver" + BASE, http=http)
+
+
+@pytest.fixture(autouse=True)
+def rules_dir(tmp_path, monkeypatch):  # never write the real data/ dir
+    monkeypatch.setattr("app.skills.OVERRIDE_ROOT", tmp_path / "skills")
