@@ -106,7 +106,8 @@ fieldset.box{margin:16px 0 0;padding:10px 14px 12px;border:1px solid var(--line2
   <p class="intro"><b>Raw expenses as they arrive from Payhawk — untouched.</b> Analysis happens in the next step. <span id="fSrc"></span></p>
   <div class="tools">
     <input id="fq" type="search" autocomplete="off" placeholder="Search feed…"><span class="sp"></span><span class="mut mono" id="fCount"></span>
-    <span class="grp"><select id="fLim" title="Expenses per fetch" onchange="setLimit(this.value)"><option value="1">1 per fetch</option><option value="2">2 per fetch</option><option value="5">5 per fetch</option><option value="10">10 per fetch</option><option value="25">25 per fetch</option><option value="50">50 per fetch</option><option value="">All</option></select><button id="bFetch" class="sec" onclick="doFetch()">Fetch from Payhawk</button></span>
+    <span class="grp"><select id="fLim" title="Expenses per fetch" onchange="setLimit(this.value)"><option value="1">1 per fetch</option><option value="2">2 per fetch</option><option value="5">5 per fetch</option><option value="10">10 per fetch</option><option value="25">25 per fetch</option><option value="50">50 per fetch</option><option value="">All</option></select><button id="bFetch" onclick="doFetch()" style="min-width:150px">Fetch</button></span>
+    <button id="bClear" class="bad" onclick="clearFeed()">Clear</button>
     <button id="bAnalyze" class="pri" onclick="doAnalyze()">Analyze all →</button>
   </div>
   <div class="card"><table><thead><tr><th></th><th>ID</th><th>Employee</th><th>Supplier</th><th class="r">Amount</th><th>Payhawk</th><th>Doc date</th><th class="r">Files</th><th>Pipeline</th></tr></thead><tbody id="fRows"></tbody></table></div>
@@ -114,7 +115,7 @@ fieldset.box{margin:16px 0 0;padding:10px 14px 12px;border:1px solid var(--line2
 <div class="wrap" id="rules" hidden>
   <p class="intro"><b style="font-size:16px">Rules</b> <span id="rChip" class="chip"></span> How every expense is judged. Changes apply to the next analysis.</p>
   <textarea id="rText" rows="26" spellcheck="false"></textarea><div class="err" id="rErr"></div>
-  <p><input id="logQ" placeholder="Search logs…" oninput="drawLogs()" style="width:240px"> <select id="logKind" onchange="drawLogs()"><option value="">All runs</option><option>fetch</option><option>analyze</option></select> <select id="logSt" onchange="drawLogs()"><option value="">Any state</option><option>failed</option><option>reviewed</option><option>new</option><option>updated</option></select> <button class="pri" onclick="saveRules()">Save</button> <button onclick="resetRules()">Reset to default</button></p>
+  <p><button class="pri" onclick="saveRules()">Save</button> <button onclick="resetRules()">Reset to default</button></p>
   <details><summary class="mut">View default rules</summary><pre class="raw" id="rDef" style="max-height:none"></pre></details>
 </div>
 <div class="wrap" id="settings" hidden>
@@ -129,7 +130,7 @@ fieldset.box{margin:16px 0 0;padding:10px 14px 12px;border:1px solid var(--line2
   <p><button id="bTest" onclick="testConn()">Test Payhawk connection</button> <span class="mut mono" id="testOut"></span></p>
 </div>
 <div class="wrap" id="logs" hidden>
-  <p><button onclick="loadLogs()">Refresh</button> <span class="mut mono" id="logCnt"></span></p>
+  <p><input id="logQ" placeholder="Search logs…" oninput="drawLogs()" style="width:240px"> <select id="logKind" onchange="drawLogs()"><option value="">All runs</option><option>fetch</option><option>analyze</option></select> <select id="logSt" onchange="drawLogs()"><option value="">Any state</option><option>failed</option><option>reviewed</option><option>new</option><option>updated</option></select> <button onclick="loadLogs()">Refresh</button> <span class="mut mono" id="logCnt"></span></p>
   <div id="logBody"></div>
 </div>
 <div class="wrap" id="analyzed" hidden>
@@ -188,13 +189,14 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeD()});
 async function loadFeed(){[feed,set_]=await Promise.all([fetch("/api/feed").then(r=>r.json()),fetch("/api/settings").then(r=>r.json())]);drawFeed();badges()}
 function drawFeed(){const x=set_,q=$("fq").value.toLowerCase(),pend=x.pending||0;
   $("fSrc").innerHTML=`<span class="badge ${esc(x.mode)}">${esc(x.mode)}</span> last fetch ${x.last_fetch?ago(x.last_fetch.at):"never"} · <a href="#settings">Auto-poll ${x.poll_interval_s?`every ${Math.round(x.poll_interval_s/60*10)/10} min · ${x.auto_poll?"on":"off"}`:"off"}</a>`;
-  $("fLim").value=x.poll_limit||"";
+  $("fLim").value=x.poll_limit||"";$("bFetch").textContent=x.mode=="LIVE"?"Fetch from Payhawk":"Fetch from Data";
   const b=$("bAnalyze");b.textContent=`Analyze all (${pend}) →`;if(!b.dataset.busy)b.disabled=!pend;
   const rs=feed.filter(r=>JSON.stringify(r).toLowerCase().includes(q));$("fCount").textContent=rs.length+" in feed";
   $("fRows").innerHTML=rs.length?rs.map(r=>{const im=r.files.find(isImg),th=im?`<img class="th" loading="lazy" src="${esc(im.url)}" alt="">`:r.files.length?'<span class="tag">PDF</span>':"";
     return `<tr class="${r.expense_id===cur?"sel":""}" onclick="openFeed('${esc(r.expense_id)}')"><td>${th}</td><td class="mono mut">${esc(r.expense_id)}</td><td>${esc(r.employee)}</td><td>${esc(r.supplier)}</td><td class="mono r">${r.amount===""?"":Number(r.amount).toFixed(2)} <span class="mut">${esc(r.currency)}</span></td><td>${esc(r.payhawk_status)}</td><td class="mono">${esc(r.document_date)}</td><td class="mono r">${r.files.length}</td><td>${chip(r.state)}</td></tr>`}).join(""):`<tr><td colspan="9" class="empty">${feed.length?"No match.":"Feed is empty. Press <b>Fetch from Payhawk</b>."}</td></tr>`}
 async function setLimit(v){const r=await api("/api/settings/poll","PUT",{poll_limit:v?+v:null});if(!r.ok)toast("Failed");loadFeed()}
-async function doFetch(){const b=$("bFetch");b.disabled=true;b.textContent="Fetching…";const r=await (await api("/api/runs/fetch","POST")).json();b.disabled=false;b.textContent="Fetch from Payhawk";
+async function clearFeed(){if(!confirm("Clear the whole feed? Analyzed results are cleared too."))return;await api("/api/feed","DELETE");loadFeed()}
+async function doFetch(){const b=$("bFetch");b.disabled=true;const r=await (await api("/api/runs/fetch","POST")).json();b.disabled=false;
   toast(`Fetched ${r.new||0} new, ${r.updated||0} updated`+(r.truncated?" — more waiting, fetch again":""));loadFeed()}
 async function doAnalyze(){const b=$("bAnalyze"),n=set_.pending||0;b.dataset.busy=1;b.disabled=true;b.textContent=`Analyzing ${n}…`;
   try{const r=await (await api("/api/runs/analyze","POST")).json();toast(`Analyzed ${r.analyzed||0}`+(r.failed?`, ${r.failed} failed (see Feed / Logs)`:""))}catch(e){toast("Analyze failed")}

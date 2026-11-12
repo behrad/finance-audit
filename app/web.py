@@ -258,6 +258,14 @@ def feed():
     return [_item(i) for i in sorted(store.expenses, key=lambda i: (store.expenses[i].get("createdAt", ""), i), reverse=True)]
 
 
+@app.delete("/api/feed")
+def clear_feed():
+    for d in (store.expenses, store.feed_sigs, store.reviews, store.sigs, store.failed):
+        d.clear()  # reviews/sigs too: Analyzed view reads store.expenses[id]
+    store.fetch_truncated = False
+    return {"ok": True}
+
+
 @app.get("/api/feed/{eid}")
 def feed_item(eid: str):
     if eid not in store.expenses:
