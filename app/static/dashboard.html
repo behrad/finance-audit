@@ -2,74 +2,87 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Receipt Auditor</title>
 <style>
-:root{--bg:#0b0d10;--panel:#12151a;--line:#1f242c;--line2:#2a313b;--tx:#e6e9ee;--mut:#7d8795;--acc:#c6f24e;--warn:#ffb454;--bad:#ff6b6b;--ok:#4ade80;
+:root{--bg:#f6f7f9;--panel:#ffffff;--line:#e5e7eb;--line2:#d1d5db;--tx:#111827;--mut:#6b7280;--acc:#4d7c0f;--warn:#b45309;--bad:#dc2626;--ok:#16a34a;
 --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;--sans:-apple-system,"Inter","Segoe UI",system-ui,sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:13.5px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(900px 400px at 85% -10%,#c6f24e12,transparent 60%)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(900px 400px at 85% -10%,#4d7c0f12,transparent 60%)}
 a{color:var(--mut);text-decoration:none}a:hover{color:var(--tx)}
-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:0 24px;height:56px;background:#0b0d10d9;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:0 24px;height:56px;background:#ffffffd9;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .logo{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em}.logo i{width:10px;height:10px;background:var(--acc);border-radius:2px;box-shadow:0 0 14px var(--acc)}
-.badge{font:600 10.5px var(--mono);letter-spacing:.08em;padding:3px 7px;border-radius:4px;border:1px solid var(--line2);color:var(--warn)}.badge.LIVE{color:var(--bad);border-color:#ff6b6b55}
+.badge{font:600 10.5px var(--mono);letter-spacing:.08em;padding:3px 7px;border-radius:4px;border:1px solid var(--line2);color:var(--warn)}.badge.LIVE{color:var(--bad);border-color:#dc262655}
 .sp{flex:1}
-button,.btn{font:500 12.5px var(--sans);color:var(--tx);background:var(--panel);border:1px solid var(--line2);padding:6px 12px;border-radius:7px;cursor:pointer;transition:.15s}
-button:hover{border-color:#47515f;background:#181c22}button.pri{background:var(--acc);color:#0b0d10;border-color:var(--acc);font-weight:650}button.pri:hover{filter:brightness(1.08)}
-button.bad{color:var(--bad)}button:disabled{opacity:.5}
+/* BUTTON SYSTEM — one base, pick a variant. All controls (button/select/input/a.btn) share height var(--h).
+   Variants: (none)=neutral  .pri=main action, 1 per view  .sec=tinted accent  .bad=destructive/risky  .sm=compact.
+   Use <button class="pri"> or <a class="btn pri"> — never add one-off button CSS. */
+:root{--h:32px}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--h);box-sizing:border-box;font:500 12.5px var(--sans);color:var(--tx);background:var(--panel);border:1px solid var(--line2);padding:0 14px;border-radius:7px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:.15s}
+button:hover,.btn:hover{border-color:#9ca3af;background:#f1f3f5;color:var(--tx)}
+button.pri,.btn.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:650}button.pri:hover,.btn.pri:hover{background:var(--acc);color:#fff;filter:brightness(1.08)}
+button.sec,.btn.sec{background:#4d7c0f14;color:var(--acc);border-color:#4d7c0f55;font-weight:600}button.sec:hover,.btn.sec:hover{background:#4d7c0f26;border-color:var(--acc);color:var(--acc)}
+button.bad,.btn.bad{background:#dc26260f;color:var(--bad);border-color:#dc262655;font-weight:600}button.bad:hover,.btn.bad:hover{background:#dc262622;border-color:var(--bad);color:var(--bad)}
+button.sm,.btn.sm{--h:26px;padding:0 10px;font-size:12px}
+button:disabled{opacity:.5;cursor:not-allowed;filter:none}
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+select{height:var(--h);box-sizing:border-box;font:500 12.5px var(--sans);color:var(--tx);background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:0 8px}
+.grp{display:inline-flex}.grp select{border-radius:7px 0 0 7px;border-color:#4d7c0f55}.grp button{border-radius:0 7px 7px 0;margin-left:-1px}
 .wrap{max-width:1280px;margin:0 auto;padding:24px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px}
 .stat{background:var(--panel);padding:16px 18px}.stat b{display:block;font:600 28px var(--mono);letter-spacing:-.03em;margin-top:4px}.stat span{color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.09em}
 .tools{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0;background:transparent;color:var(--mut);padding:6px 14px}
-.seg button.on{background:#1b2027;color:var(--tx)}
-input{background:var(--panel);border:1px solid var(--line2);color:var(--tx);padding:7px 11px;border-radius:8px;width:240px;font:inherit;outline:0}input:focus{border-color:var(--acc)}
+.seg{display:flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden}.seg button{border:0;border-radius:0;background:transparent;color:var(--mut)}.seg button:hover{background:#f1f3f5}
+.seg button.on{background:#f1f3f5;color:var(--tx)}
+input{background:var(--panel);border:1px solid var(--line2);color:var(--tx);height:var(--h);box-sizing:border-box;padding:0 11px;border-radius:7px;width:240px;font:inherit;outline:0}input:focus{border-color:var(--acc)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 table{border-collapse:collapse;width:100%}th{font:500 11px var(--sans);text-transform:uppercase;letter-spacing:.09em;color:var(--mut);text-align:left;padding:11px 16px;border-bottom:1px solid var(--line)}
-td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border:0}tbody tr{cursor:pointer;transition:background .12s}tbody tr:hover,tbody tr.sel{background:#171b21}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border:0}tbody tr{cursor:pointer;transition:background .12s}tbody tr:hover,tbody tr.sel{background:#f1f3f5}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}.mut{color:var(--mut)}.r{text-align:right}
 .pill{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--sans);padding:2px 9px;border-radius:99px;border:1px solid}
 .pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.pill.clean{color:var(--ok);border-color:#4ade8040}.pill.needs{color:var(--warn);border-color:#ffb45440}
-.tag{font:500 11px var(--mono);color:var(--tx);background:#1b2027;border:1px solid var(--line2);padding:2px 7px;border-radius:5px;white-space:nowrap}
+.pill.clean{color:var(--ok);border-color:#16a34a40}.pill.needs{color:var(--warn);border-color:#b4530940}
+.iss{max-width:420px}.iss div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iss div+div{margin-top:3px}.fl{margin:0;padding-left:18px}.tag{font:500 11px var(--mono);color:var(--tx);background:#f1f3f5;border:1px solid var(--line2);padding:2px 7px;border-radius:5px;white-space:nowrap}
 .act{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase}.act.approve{color:var(--ok)}
 .empty{padding:60px;text-align:center;color:var(--mut)}
-#drawer{position:fixed;top:0;right:0;bottom:0;width:440px;background:var(--panel);border-left:1px solid var(--line2);transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:10;display:flex;flex-direction:column;box-shadow:-30px 0 60px #0008}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:440px;background:var(--panel);border-left:1px solid var(--line2);transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:10;display:flex;flex-direction:column;box-shadow:-30px 0 60px #0002}
 #drawer.open{transform:none}.dh{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}.dh h3{margin:0;font:600 15px var(--mono)}
 .db{flex:1;overflow:auto;padding:18px 20px}.db img{width:100%;border:1px solid var(--line2);border-radius:8px;background:#fff}
-.note{margin:16px 0;padding:12px 14px;border-left:2px solid var(--warn);background:#ffb45410;border-radius:0 8px 8px 0}.note.ok{border-color:var(--ok);background:#4ade8010}
+.note{margin:16px 0;padding:12px 14px;border-left:2px solid var(--warn);background:#b4530910;border-radius:0 8px 8px 0}.note.ok{border-color:var(--ok);background:#16a34a10}
 dl{display:grid;grid-template-columns:130px 1fr;gap:9px 12px;margin:0}dt{color:var(--mut);font-size:12px}dd{margin:0;word-break:break-word}
 .df{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--line)}.df .sp{flex:1}
-#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;transition:.25s;background:#1b2027;border:1px solid var(--line2);padding:9px 16px;border-radius:8px;font:12px var(--mono)}#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;transition:.25s;background:#f1f3f5;border:1px solid var(--line2);padding:9px 16px;border-radius:8px;font:12px var(--mono)}#toast.show{opacity:1;transform:translate(-50%,0)}
 .act.ask_review{color:var(--warn)}
 body{padding-left:264px}
-header nav{display:flex;align-items:center;gap:4px}header nav a{padding:6px 11px;border-radius:7px}header nav a.on{background:#1b2027;color:var(--tx)}
+header nav{display:flex;align-items:center;gap:4px}header nav a{padding:6px 11px;border-radius:7px}header nav a.on{background:#f1f3f5;color:var(--tx)}
 .crumb{font-weight:600;letter-spacing:-.01em}.crumb small{color:var(--mut);font-weight:400;margin-left:8px}
-.side{position:fixed;top:0;left:0;bottom:0;width:264px;z-index:6;display:flex;flex-direction:column;padding:18px 14px;background:linear-gradient(180deg,#0e1115,#0a0c0f);border-right:1px solid var(--line)}
+.side{position:fixed;top:0;left:0;bottom:0;width:264px;z-index:6;display:flex;flex-direction:column;padding:18px 14px;background:linear-gradient(180deg,#ffffff,#f9fafb);border-right:1px solid var(--line)}
 .side .logo{padding:2px 10px 22px;font-size:14.5px}
-.sec{font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#56606d;padding:14px 10px 8px}
+.sec{font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#9ca3af;padding:14px 10px 8px}
 .side nav{display:flex;flex-direction:column;gap:2px;position:relative}
 .side nav a{position:relative;display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;color:var(--mut);transition:background .15s,color .15s}
-.side nav a:hover{background:#151920;color:var(--tx)}
-.side nav a.on{background:linear-gradient(90deg,#c6f24e14,#c6f24e03 70%);color:var(--tx);box-shadow:inset 0 0 0 1px #c6f24e1f}
+.side nav a:hover{background:#f1f3f5;color:var(--tx)}
+.side nav a.on{background:linear-gradient(90deg,#4d7c0f14,#4d7c0f03 70%);color:var(--tx);box-shadow:inset 0 0 0 1px #4d7c0f1f}
 .side nav a.on:before{content:"";position:absolute;left:-14px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--acc);box-shadow:0 0 12px var(--acc)}
-.side nav a>span:not(.ic){display:flex;flex-direction:column;flex:1;font-weight:550;font-size:13.5px;line-height:1.25}.side nav a small{font-size:11.5px;font-weight:400;color:#5f6976}
-.ic{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#151920;border:1px solid var(--line2);position:relative;z-index:1;transition:.15s}
+.side nav a>span:not(.ic){display:flex;flex-direction:column;flex:1;font-weight:550;font-size:13.5px;line-height:1.25}.side nav a small{font-size:11.5px;font-weight:400;color:#9ca3af}
+.ic{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#f1f3f5;border:1px solid var(--line2);position:relative;z-index:1;transition:.15s}
 .ic svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.side nav a.on .ic{background:var(--acc);border-color:var(--acc);color:#0b0d10;box-shadow:0 0 18px #c6f24e40}
-.flow:before{content:"";position:absolute;left:24px;top:22px;bottom:26px;width:1px;background:linear-gradient(180deg,var(--line2),#c6f24e55 50%,var(--line2))}
+.side nav a.on .ic{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 0 18px #4d7c0f40}
+.flow:before{content:"";position:absolute;left:24px;top:22px;bottom:26px;width:1px;background:linear-gradient(180deg,var(--line2),#4d7c0f55 50%,var(--line2))}
 .src{display:flex;align-items:center;gap:12px;padding:9px 10px;color:var(--mut);font-size:12.5px}
-.src .ic{background:#0b0d10}.src .ic:after{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.src .ic{background:#f6f7f9}.src .ic:after{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
 .src .badge{margin-left:auto}
-.side i.n{font:600 10.5px var(--mono);font-style:normal;color:var(--acc);background:#c6f24e18;border:1px solid #c6f24e30;border-radius:99px;padding:1px 7px}
-.side .foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--line);color:#56606d;font-size:11.5px;line-height:1.5}
+.side i.n{font:600 10.5px var(--mono);font-style:normal;color:var(--acc);background:#4d7c0f18;border:1px solid #4d7c0f30;border-radius:99px;padding:1px 7px}
+.side .foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--line);color:#9ca3af;font-size:11.5px;line-height:1.5}
 @media(max-width:900px){body{padding-left:0}.side{position:static;width:auto;border-right:0;border-bottom:1px solid var(--line)}.side .foot,.side nav a small{display:none}}
 .intro{color:var(--mut);margin:0 0 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.intro b{color:var(--tx)}
 .chip{font:600 10.5px var(--mono);letter-spacing:.05em;padding:2px 8px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
-.chip.new{color:var(--acc);border-color:#c6f24e55}.chip.analyzed{color:var(--ok);border-color:#4ade8055}.chip.changed,.chip.rules{color:var(--warn);border-color:#ffb45455}.chip.failed{color:var(--bad);border-color:#ff6b6b55}
+.chip.new{color:var(--acc);border-color:#4d7c0f55}.chip.analyzed{color:var(--ok);border-color:#16a34a55}.chip.changed,.chip.rules{color:var(--warn);border-color:#b4530955}.chip.failed{color:var(--bad);border-color:#dc262655}
 select{font:inherit;background:var(--panel);color:var(--tx);border:1px solid var(--line2);border-radius:7px;padding:5px 8px}
 .th{width:40px;height:40px;object-fit:cover;border-radius:5px;border:1px solid var(--line2);background:#fff;display:block}
 textarea{width:100%;background:var(--panel);color:var(--tx);border:1px solid var(--line2);border-radius:8px;padding:10px;font:12.5px/1.5 var(--mono);outline:0}textarea:focus{border-color:var(--acc)}
 .err{color:var(--bad);font:12px var(--mono);white-space:pre-wrap;margin:8px 0}
 pre.raw{white-space:pre-wrap;word-break:break-all;font:11.5px var(--mono);color:var(--mut);max-height:320px;overflow:auto}
-.fl{margin-bottom:12px}.fl a{color:var(--acc)}
+.fl{margin-bottom:12px}
+fieldset.box{margin:16px 0 0;padding:10px 14px 12px;border:1px solid var(--line2);border-radius:8px}fieldset.box legend{padding:0 6px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.db img.rc{width:auto;max-width:100%;max-height:160px;display:block;margin-bottom:8px}
 </style>
 <aside class="side">
   <div class="logo"><i></i>Receipt Auditor</div>
@@ -92,16 +105,16 @@ pre.raw{white-space:pre-wrap;word-break:break-all;font:11.5px var(--mono);color:
 <div class="wrap" id="feed" hidden>
   <p class="intro"><b>Raw expenses as they arrive from Payhawk — untouched.</b> Analysis happens in the next step. <span id="fSrc"></span></p>
   <div class="tools">
-    <span>Fetch <select id="fLim" onchange="setLimit(this.value)"><option>1</option><option>2</option><option>5</option><option>10</option><option>25</option><option>50</option><option value="">All</option></select> per run</span>
-    <button id="bFetch" onclick="doFetch()">Fetch from Payhawk</button>
-    <input id="fq" type="search" autocomplete="off" placeholder="Search feed…"><span class="sp"></span><span class="mut mono" id="fCount"></span><button id="bAnalyze" class="pri" onclick="doAnalyze()">Analyze all →</button>
+    <input id="fq" type="search" autocomplete="off" placeholder="Search feed…"><span class="sp"></span><span class="mut mono" id="fCount"></span>
+    <span class="grp"><select id="fLim" title="Expenses per fetch" onchange="setLimit(this.value)"><option value="1">1 per fetch</option><option value="2">2 per fetch</option><option value="5">5 per fetch</option><option value="10">10 per fetch</option><option value="25">25 per fetch</option><option value="50">50 per fetch</option><option value="">All</option></select><button id="bFetch" class="sec" onclick="doFetch()">Fetch from Payhawk</button></span>
+    <button id="bAnalyze" class="pri" onclick="doAnalyze()">Analyze all →</button>
   </div>
   <div class="card"><table><thead><tr><th></th><th>ID</th><th>Employee</th><th>Supplier</th><th class="r">Amount</th><th>Payhawk</th><th>Doc date</th><th class="r">Files</th><th>Pipeline</th></tr></thead><tbody id="fRows"></tbody></table></div>
 </div>
 <div class="wrap" id="rules" hidden>
   <p class="intro"><b style="font-size:16px">Rules</b> <span id="rChip" class="chip"></span> How every expense is judged. Changes apply to the next analysis.</p>
   <textarea id="rText" rows="26" spellcheck="false"></textarea><div class="err" id="rErr"></div>
-  <p><button class="pri" onclick="saveRules()">Save</button> <button onclick="resetRules()">Reset to default</button></p>
+  <p><input id="logQ" placeholder="Search logs…" oninput="drawLogs()" style="width:240px"> <select id="logKind" onchange="drawLogs()"><option value="">All runs</option><option>fetch</option><option>analyze</option></select> <select id="logSt" onchange="drawLogs()"><option value="">Any state</option><option>failed</option><option>reviewed</option><option>new</option><option>updated</option></select> <button class="pri" onclick="saveRules()">Save</button> <button onclick="resetRules()">Reset to default</button></p>
   <details><summary class="mut">View default rules</summary><pre class="raw" id="rDef" style="max-height:none"></pre></details>
 </div>
 <div class="wrap" id="settings" hidden>
@@ -111,10 +124,12 @@ pre.raw{white-space:pre-wrap;word-break:break-all;font:11.5px var(--mono);color:
     <button class="pri" onclick="saveLlm()">Save</button> <button onclick="saveLlm(true)">Reset to Gemini</button></p></div>
   <div class="card" style="padding:14px 20px;margin-top:16px"><b>Write-back to Payhawk</b> <span class="mut">— resets to the .env value on restart.</span>
     <p><button id="bWb" onclick="toggleWb()"></button></p></div>
+  <div class="card" style="padding:14px 20px;margin-top:16px"><b>Data source</b> <span class="mut">— Offline reads local JSON snapshots and never calls Payhawk; resets to DATA_MODE on restart.</span>
+    <p><button id="bMode" onclick="toggleMode()"></button></p></div>
   <p><button id="bTest" onclick="testConn()">Test Payhawk connection</button> <span class="mut mono" id="testOut"></span></p>
 </div>
 <div class="wrap" id="logs" hidden>
-  <p><select id="logSel" onchange="drawLog()"></select> <button onclick="loadLogs()">Refresh</button> <span class="mut mono" id="logCnt"></span></p>
+  <p><button onclick="loadLogs()">Refresh</button> <span class="mut mono" id="logCnt"></span></p>
   <div id="logBody"></div>
 </div>
 <div class="wrap" id="analyzed" hidden>
@@ -122,9 +137,9 @@ pre.raw{white-space:pre-wrap;word-break:break-all;font:11.5px var(--mono);color:
   <div class="stats" id="stats"></div>
   <div class="tools">
     <div class="seg"><button data-f="">All</button><button data-f="needs attention">Needs attention</button><button data-f="clean">Clean</button></div>
-    <input id="q" type="search" autocomplete="off" placeholder="Search employee, supplier, flag…"><span class="sp"></span><span class="mut mono" id="count"></span><button id="bDecide" onclick="doDecide()">Apply actions</button>
+    <input id="q" type="search" autocomplete="off" placeholder="Search employee, supplier, flag…"><span class="sp"></span><span class="mut mono" id="count"></span><button id="bDecide" class="pri" onclick="doDecide()">Apply actions</button>
   </div>
-  <div class="card"><table><thead><tr><th>ID</th><th>Employee</th><th>Supplier</th><th class="r">Amount</th><th>Status</th><th>Flag</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="card"><table><thead><tr><th>ID</th><th>Employee</th><th>Supplier</th><th class="r">Amount</th><th>Status</th><th>Issues</th><th>Action</th><th>Comments</th></tr></thead><tbody id="rows"></tbody></table></div>
 </div>
 <aside id="drawer"></aside><div id="toast"></div>
 <script>
@@ -141,25 +156,31 @@ const isImg=x=>(x.content_type||"").startsWith("image/");
 // ---- Analyzed
 async function load(){data=await (await fetch("/api/reviews")).json();draw();badges()}
 function badges(){const n=data.filter(r=>r.status=="needs attention"&&!r.action).length;$("nAn").textContent=n||"";$("nAn").hidden=!n;$("nFeed").textContent=feed.length||"";$("nFeed").hidden=!feed.length}
+const hum=s=>String(s).replace(/_/g," "),issues=r=>r.flag_details?.length?r.flag_details:r.category_for_attention?[{flag:r.category_for_attention,detail:r.description||""}]:[];
 function draw(){
   const n=s=>data.filter(r=>r.status===s).length, auto=data.filter(r=>r.action_source.startsWith("auto_")).length;
   $("stats").innerHTML=[["Analyzed",data.length],["Needs attention",n("needs attention")],["Clean",n("clean")],["Auto-approved",auto]].map(([l,v])=>`<div class="stat"><span>${l}</span><b>${v}</b></div>`).join("");
   const q=$("q").value.toLowerCase();document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
   const rs=data.filter(r=>(!f||r.status===f)&&JSON.stringify(r).toLowerCase().includes(q));$("count").textContent=rs.length+" shown";
-  $("rows").innerHTML=rs.length?rs.map(r=>`<tr class="${r.expense_id===cur?"sel":""}" onclick="open_('${esc(r.expense_id)}')"><td class="mono mut">${esc(r.expense_id)}</td><td>${esc(r.employee)}</td><td>${esc(r.supplier)}</td><td class="mono r">${Number(r.total_amount).toFixed(2)} <span class="mut">${esc(r.total_currency)}</span></td><td>${pill(r.status)}</td><td>${r.category_for_attention?`<span class="tag">${esc(r.category_for_attention)}</span>`:""}</td><td class="act ${esc(r.action)}">${esc(ACT[r.action]||r.action)}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Nothing analyzed yet. Go to <a href="#feed" style="color:var(--acc)">Feed</a> and press <b>Analyze all</b>.</td></tr>`}
-async function open_(id,ask){cur=id;const {row:r}=await (await fetch("/api/reviews/"+id)).json();draw();
+  $("rows").innerHTML=rs.length?rs.map(r=>`<tr class="${r.expense_id===cur?"sel":""}" onclick="open_('${esc(r.expense_id)}')"><td class="mono mut">${esc(r.expense_id)}</td><td>${esc(r.employee)}</td><td>${esc(r.supplier)}</td><td class="mono r">${Number(r.total_amount).toFixed(2)} <span class="mut">${esc(r.total_currency)}</span></td><td>${pill(r.status)}</td><td class="iss">${issues(r).map(i=>`<div title="${esc(hum(i.flag)+": "+i.detail)}"><span class="tag">${esc(hum(i.flag))}</span> <span class="mut">${esc(i.detail)}</span></div>`).join("")}</td><td class="act ${esc(r.action)}">${esc(ACT[r.action]||r.action)}</td><td class="mut" title="${esc(r.comment)}">${esc(r.comment)}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Nothing analyzed yet. Go to <a href="#feed" style="color:var(--acc)">Feed</a> and press <b>Analyze all</b>.</td></tr>`}
+async function open_(id,ask){cur=id;const {row:r,files,raw}=await (await fetch("/api/reviews/"+id)).json();draw();
   const rows=[["Employee",r.employee],["Supplier",r.supplier],["Category",r.category],["Note",r.note],["Document no.",r.document_number],["Document date",r.document_date],["Form amount",`${r.form_amount} ${r.form_currency}`],["Receipt total",`${r.receipt_total} ${r.receipt_currency}`],["Duplicate of",r.duplicate_of],["Applied",r.changes_applied],["Action source",r.action_source]].filter(x=>x[1]!==""&&x[1]!=null);
   $("drawer").innerHTML=`<div class="dh"><h3>#${esc(r.expense_id)}</h3>${pill(r.status)}<span class="sp" style="flex:1"></span><button onclick="closeD()">Close</button></div>
-  <div class="db"><img src="${esc(r.receipt_link)}" alt="receipt">
-  <div class="note ${r.status=="clean"?"ok":""}">${esc(r.description)||"No issues found."}</div>
+  <div class="db">
+  <div class="note ${r.status=="clean"?"ok":""}">${issues(r).length?`<ul class="fl">${issues(r).map(i=>`<li><b>${esc(hum(i.flag))}</b>: ${esc(i.detail)}</li>`).join("")}</ul>`:"No issues found."}</div>
   ${r.comment?`<div class="note"><span class="mut">Review request sent:</span><br>${esc(r.comment)}</div>`:""}
-  <dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd class="${/amount|total|no\.|date/i.test(k)?"mono":""}">${esc(v)}</dd>`).join("")}</dl></div>
+  <dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd class="${/amount|total|no\.|date/i.test(k)?"mono":""}">${esc(v)}</dd>`).join("")}</dl>
+  ${rcpt(files)}${rawBox(raw)}<p><button id="bLive" onclick="liveFetch('${esc(id)}')">Fetch expense from Payhawk</button></p><div id="liveOut"></div></div>
   <div class="df" style="flex-wrap:wrap"><button class="pri" onclick="act('${esc(id)}','approve')">Approve</button><button onclick="$('askBox').hidden=false;$('askTxt').focus()">Ask for review</button><span class="sp"></span><button onclick="act('${esc(id)}','')">Clear</button>
   <div id="askBox" ${ask?"":"hidden"} style="width:100%"><textarea id="askTxt" rows="3" placeholder="What should the employee fix or explain?">${esc(r.comment)}</textarea><p style="margin:8px 0 0"><button class="pri" onclick="act('${esc(id)}','ask_review',$('askTxt').value)">Send</button></p></div></div>`;
   $("drawer").classList.add("open")}
 function closeD(){cur=null;$("drawer").classList.remove("open");draw();drawFeed()}
-async function act(id,a,comment){const b={action:a};if(comment)b.comment=comment;const r=await api(`/api/reviews/${id}/action`,"POST",b);
-  if(!r.ok)return toast("Failed: "+((await r.json()).detail||r.status));toast(a?`${ACT[a]} → #${id}`:`cleared #${id}`);await load();open_(id)}
+async function act(id,a,comment){const b={action:a};if(comment)b.comment=comment;
+  const bs=[...document.querySelectorAll("#drawer .df button")];bs.forEach(x=>x.disabled=true);toast("Saving to Payhawk…");
+  let r,j;try{r=await api(`/api/reviews/${id}/action`,"POST",b);j=await r.json().catch(()=>({}))}catch(e){r={ok:false};j={detail:String(e)}}
+  bs.forEach(x=>x.disabled=false);if(!r.ok)return toast("Not saved: "+(j.detail||r.status));
+  const w=j.writes||[],dry=w.some(x=>x.dry_run),what=[...new Set(w.map(x=>x.call))].join(", ");
+  toast(!a?`Cleared #${id}`:!w.length?`${ACT[a]} #${id} — nothing new to send`:dry?`DRY RUN — not sent to Payhawk (${what})`:`Sent to Payhawk: ${what}`);await load();open_(id)}
 async function doDecide(){const b=$("bDecide");b.disabled=true;const r=await (await api("/api/runs/decide","POST")).json();b.disabled=false;toast(`Applied ${r.applied} action(s)`);load()}
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{f=b.dataset.f;draw()});$("q").oninput=draw;$("fq").oninput=drawFeed;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeD()});
@@ -178,13 +199,17 @@ async function doFetch(){const b=$("bFetch");b.disabled=true;b.textContent="Fetc
 async function doAnalyze(){const b=$("bAnalyze"),n=set_.pending||0;b.dataset.busy=1;b.disabled=true;b.textContent=`Analyzing ${n}…`;
   try{const r=await (await api("/api/runs/analyze","POST")).json();toast(`Analyzed ${r.analyzed||0}`+(r.failed?`, ${r.failed} failed (see Feed / Logs)`:""))}catch(e){toast("Analyze failed")}
   delete b.dataset.busy;await Promise.all([load(),loadFeed()]);if(!$("feed").hidden)show("analyzed")}
+const rcpt=fs=>`<fieldset class="box"><legend>Receipt</legend>${fs.map(x=>`<div class="fl">${isImg(x)?`<a href="${esc(x.url)}" target="_blank"><img class="rc" src="${esc(x.url)}" alt="${esc(x.name)}"></a>`:""}<a class="btn sm" href="${esc(x.url)}" target="_blank">Open file ↗</a> <span class="mut">${esc(x.name)}</span></div>`).join("")||'<span class="mut">No receipt attached.</span>'}</fieldset>`;
+const rawBox=(raw,t="Raw Payhawk JSON")=>`<fieldset class="box"><legend>${t}</legend><pre class="raw">${esc(JSON.stringify(raw,null,2))}</pre></fieldset>`;
+async function liveFetch(id){const b=$("bLive"),o=$("liveOut");b.disabled=true;o.innerHTML='<span class="mut">Fetching…</span>';
+  try{const r=await fetch("/api/payhawk/expenses/"+id),j=await r.json();o.innerHTML=r.ok?rawBox(j,"Live Payhawk JSON · "+new Date().toLocaleString()):`<div class="err">${esc(j.detail||r.status)}</div>`}catch(e){o.innerHTML=`<div class="err">${esc(e)}</div>`}b.disabled=false}
 async function openFeed(id){cur=id;drawFeed();const {item:r,raw}=await (await fetch("/api/feed/"+id)).json();
   const rows=[["Employee",r.employee],["Supplier",r.supplier],["Category",r.category],["Note",r.note],["Amount",r.amount===""?"":`${r.amount} ${r.currency}`],["Payhawk status",r.payhawk_status],["Document date",r.document_date],["Created",r.created_at]].filter(x=>x[1]!=="");
   $("drawer").innerHTML=`<div class="dh"><h3>#${esc(r.expense_id)}</h3>${chip(r.state)}<span class="sp" style="flex:1"></span><button onclick="closeD()">Close</button></div>
-  <div class="db">${r.files.map(x=>`<div class="fl">${isImg(x)?`<img src="${esc(x.url)}" alt="${esc(x.name)}">`:`<a href="${esc(x.url)}" target="_blank">Open file</a> <span class="mut">${esc(x.name)}</span>`}</div>`).join("")||'<div class="note">No receipt attached.</div>'}
+  <div class="db">
   ${r.error?`<div class="err">${esc(r.error)}</div>`:""}
   <dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
-  <details style="margin-top:16px"><summary class="mut">Raw Payhawk JSON</summary><pre class="raw">${esc(JSON.stringify(raw,null,2))}</pre></details>
+  ${rcpt(r.files)}${rawBox(raw)}
   ${["analyzed","changed","rules changed"].includes(r.state)?`<p><a style="color:var(--acc)" href="#analyzed" onclick="show('analyzed');open_('${esc(id)}');return false">View analysis →</a></p>`:""}</div>`;
   $("drawer").classList.add("open")}
 // ---- Rules
@@ -197,13 +222,14 @@ async function resetRules(){if(!confirm("Discard your edits and go back to the d
 const kv=r=>r?Object.entries(r).filter(([k])=>!["at","kind","duration_s"].includes(k)).map(([k,v])=>`${v} ${k}`).join(", "):"";
 async function loadSettings(){const x=await (await fetch("/api/settings")).json(),l=x.llm;
 const run=r=>r?`${ago(r.at)} — ${r.duration_s}s, ${kv(r)}`:"none yet in this process";
-const R=[["Data source",x.mode=="LIVE"?"LIVE — read from the Payhawk API":"MOCK — built-in fixtures, nothing leaves this machine"],
+const R=[["Data source",x.mode=="LIVE"?"LIVE — read from the Payhawk API":x.mode=="OFFLINE"?"OFFLINE — "+x.data_source:"MOCK — built-in fixtures, nothing leaves this machine"],
 ["Payhawk host",x.mode=="LIVE"?x.payhawk_host:"— (mock)"],["Account ID",x.account_id||"— (mock)"],
 ["Last fetch",run(x.last_fetch)],["Last analysis",run(x.last_analyze)],
 ["Auto-poll",x.poll_interval_s?`<button onclick="togglePoll(${!x.auto_poll})">${x.auto_poll?"On — click to turn off":"Off — click to turn on"}</button> every ${x.poll_interval_s}s, fetches into Feed only`:"off — POLL_INTERVAL_SECONDS not set"],
 ["Fetch per run",x.poll_limit?`${x.poll_limit} expenses per fetch`:"all"],
 ["LLM provider",l.provider],["LLM model",l.model],["LLM mode",l.calls_model?"live — calls the model":"replay — recorded answers, no model call"],
 ["Write-back",x.writeback_dry_run?"DRY RUN — nothing is written to Payhawk":"ON — writes to Payhawk"]];
+isOff=x.mode=="OFFLINE";$("bMode").textContent=isOff?"Switch to LIVE (Payhawk API)":"Switch to OFFLINE (local files)";
 wbDry=x.writeback_dry_run;$("bWb").textContent=wbDry?"Turn ON writes to Payhawk":"Back to DRY RUN";$("bWb").className=wbDry?"bad":"";
 $("setTbl").tBodies[0].innerHTML=R.map(([k,v])=>`<tr><td class="mut" style="width:200px">${k}</td><td class="mono">${k=="Auto-poll"&&x.poll_interval_s?v:esc(v)}</td></tr>`).join("")}
 async function togglePoll(v){await api("/api/settings/poll","PUT",{auto_poll:v});loadSettings()}
@@ -211,18 +237,24 @@ async function saveLlm(reset){const r=await fetch("/api/settings/llm",reset?{met
 if(!r.ok)return toast("Model and key are required");$("llmKey").value="";toast(reset?"Back to Gemini":"Custom LLM saved");loadSettings()}
 async function toggleWb(){if(wbDry&&!confirm("Approve / review requests / fixes will be written to the real Payhawk account. Continue?"))return;
 await api("/api/settings/writeback","PUT",{dry_run:!wbDry});loadSettings()}
+let isOff;
+async function toggleMode(){if(isOff&&!confirm("Switch to LIVE: fetch / analyze / download will call the real Payhawk API. Continue?"))return;
+await api("/api/settings/mode","PUT",{mode:isOff?"live":"offline"});loadSettings();fetch("/api/info").then(r=>r.json()).then(i=>{$("badge").className="badge "+i.mode;$("badge").textContent=i.mode})}
 async function testConn(){$("testOut").textContent="…";const r=await (await fetch("/api/settings/test-connection",{method:"POST"})).json();
 $("testOut").textContent=r.ok?`OK — ${r.account_name} (${r.account_id}) in ${r.latency_ms} ms`:"FAILED — "+r.error}
 // ---- Logs
-let logs=[];
-async function loadLogs(){logs=await (await fetch("/api/logs")).json();$("logSel").innerHTML=logs.map((l,i)=>`<option value="${i}">${ago(l.at)} — ${l.kind=="analyze"?`analyze: ${l.received} expenses`:`fetch: ${l.received} from Payhawk`}</option>`).join("");drawLog()}
-function drawLog(){const l=logs[$("logSel").value||0];if(!l){$("logBody").innerHTML='<div class="empty">No runs yet in this process.</div>';$("logCnt").textContent="";return}
-$("logCnt").textContent=l.received+(l.kind=="analyze"?" analyzed, ":" received, ")+l.items.filter(i=>i.llm.length).length+" sent to LLM";
-$("logBody").innerHTML=l.items.map(i=>`<div class="card" style="padding:12px 18px;margin-bottom:10px"><b class="mono">#${esc(i.expense_id)}</b> ${esc(i.title||"")} <span class="mut">Payhawk: ${esc(i.payhawk_status)}</span>
+function runHtml(l){return `<h3 class="mut" style="margin:18px 0 8px">${ago(l.at)} — ${l.kind=="analyze"?`analyze: ${l.received} expenses`:`fetch: ${l.received} from Payhawk`} · ${l.items.filter(i=>i.llm.length).length} sent to LLM</h3>`+(l.items.map(i=>`<div class="card" style="padding:12px 18px;margin-bottom:10px"><b class="mono">#${esc(i.expense_id)}</b> ${esc(i.title||"")} <span class="mut">Payhawk: ${esc(i.payhawk_status)}</span>
  <span class="tag" style="float:right;${i.state=="failed"?"color:var(--bad)":""}">${esc(i.state)}</span>
- ${i.llm.length?i.llm.map(c=>`<details style="margin-top:8px"><summary><span class="mono">${esc(c.step)}</span> · ${esc(c.model)} · ${c.called_llm?"LLM called":"replay (no LLM call)"} · <span style="color:var(--${c.ok?"ok":"bad"})">${c.ok?"success":"error"}</span> · ${c.ms} ms</summary>
+ ${i.llm.length?i.llm.map(c=>`<details style="margin-top:8px"><summary><span class="mono">${esc(c.step)}</span> <span class="mut">(${c.step=="extract"?"reads the receipt (OCR)":"judges against your Rules"})</span> · ${esc(c.model)} · ${c.called_llm?"LLM called":"replay (no LLM call)"} · <span style="color:var(--${c.ok?"ok":"bad"})">${c.ok?"success":"error"}</span> · ${c.ms} ms</summary>
+ <div class="mut" style="margin-top:6px">Input sent to the model</div><pre class="mut" style="white-space:pre-wrap">${esc(c.request||"(not recorded)")}</pre><div class="mut">Output</div>
  ${c.error?`<pre style="color:var(--bad);white-space:pre-wrap">${esc(c.error)}</pre>`:""}<pre class="mut" style="white-space:pre-wrap">${esc(c.response||"")}</pre></details>`).join(""):`<div class="mut" style="margin-top:6px">${l.kind=="fetch"?"Raw data only, no analysis":"LLM not called"}</div>`}
- ${i.error?`<pre style="color:var(--bad);white-space:pre-wrap">${esc(i.error)}</pre>`:""}${i.result?`<div class="mut mono" style="margin-top:6px">→ ${esc(i.result.status)} ${esc(i.result.flags.join(", "))}</div>`:""}</div>`).join("")||'<div class="empty">Nothing received.</div>'}
+ ${i.error?`<pre style="color:var(--bad);white-space:pre-wrap">${esc(i.error)}</pre>`:""}${i.result?`<div class="mut mono" style="margin-top:6px">→ ${esc(i.result.status)} ${esc(i.result.flags.join(", "))}</div>`:""}</div>`).join("")||'<div class="empty">Nothing received.</div>')}
+let logs=[];
+async function loadLogs(){logs=await (await fetch("/api/logs")).json();drawLogs()}
+function drawLogs(){const q=$("logQ").value.toLowerCase(),k=$("logKind").value,st=$("logSt").value;let n=0;
+// shortcut: search matches the raw JSON of an item (ids, title, prompt, response, errors); fine for 10 runs
+const h=logs.filter(l=>!k||l.kind==k).map(l=>{const its=l.items.filter(i=>(!st||i.state==st)&&(!q||JSON.stringify(i).toLowerCase().includes(q)));n+=its.length;return its.length||(!q&&!st)?runHtml({...l,items:its}):""}).join("");
+$("logCnt").textContent=n+" items in "+logs.length+" runs";$("logBody").innerHTML=h||'<div class="empty">No runs match.</div>'}
 // ---- Router
 const V=["feed","analyzed","rules","settings","logs"];
 function show(v){if(!V.includes(v))v="feed";V.forEach(p=>$(p).hidden=p!=v);document.querySelectorAll("nav a[data-v]").forEach(a=>a.classList.toggle("on",a.dataset.v==v));

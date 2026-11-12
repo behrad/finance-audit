@@ -76,7 +76,7 @@ skills/<tenant>/<version>/
 ---
 name: payhawk-default
 model: gemini-3.8-flash            # per-tenant override
-flags: [duplicate, wrong_exchange_rate, wrong_value, total_mismatch, note_mismatch,
+flags: [duplicate, fx_difference, wrong_value, total_mismatch, note_mismatch,
         supplier_not_employee, category_mismatch, date_mismatch,
         service_period_out_of_range, number_mismatch, unreadable_receipt]
 checks:                            # deterministic checks from the built-in registry, with params
@@ -143,7 +143,7 @@ Payhawk REST has **no approve/reject endpoint**, and `PATCH` works only while `s
 | Optional: an "AI review" custom field (if the tenant creates one) | poll | `PATCH .../custom-fields/{cfId}` = `clean` / `needs attention: <flags>`, so it can be filtered in Payhawk |
 
 **Per-tenant safety switches:** `writeback.patch`, `writeback.mark_ready`, `writeback.comment`, `writeback.dry_run`.
-- All default to on, matching D1, except `dry_run`, which is **on until the first live verification**.
+- All default to on, matching D1; `dry_run` defaults to off (live writes). `WRITEBACK_DRY_RUN=1` or the Settings toggle turns it on.
 - Every call is logged with request, response and timestamp in `tenants/{t}/writeback_log`.
 - Calls are idempotent: a verdict hash is checked before posting comments or status changes.
 

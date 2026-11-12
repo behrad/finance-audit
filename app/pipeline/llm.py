@@ -33,10 +33,35 @@ def build_extract_agent(skill: Skill):
                     output_schema=ReceiptExtraction, include_contents="none")
 
 
+# Our fixed system prompt. The tenant's plain-language rules (SKILL.md body, editable on the Rules page) go in <user_rules>.
+SYSTEM_PROMPT = """You review one expense claim against its receipt for a finance team.
+
+You get the Payhawk expense, the data extracted from the receipt, and check_results: findings of automatic
+checks already run in code ({checks}). Do NOT redo or dispute those; their rules are already handled.
+
+Apply every other rule in <user_rules> yourself. For each rule the claim breaks, return one flag:
+- name: a short snake_case code. Use one of the known codes when it fits ({flags}); otherwise make up a
+  clear new one (or use the code the rule itself names).
+- description: one sentence a finance person can act on.
+If a rule says the category is wrong, set category_fix to the best category from: {categories}
+(use {fallback} when nothing fits); otherwise leave it empty.
+If nothing is wrong, return no flags. Never flag something no rule asks for.
+
+<user_rules>
+{rules}
+</user_rules>"""
+
+
+def _rules_text(skill: Skill) -> str:
+    return SYSTEM_PROMPT.format(checks=", ".join(skill.checks) or "none", flags=", ".join(skill.flags),
+                                categories=", ".join(skill.categories), fallback=skill.fallback_category or "Other",
+                                rules=skill.body)
+
+
 def build_rules_agent(skill: Skill):
     """The only place where a tenant changes agent behaviour (SPEC §5). Callable instruction avoids ADK's {var} templating."""
     from google.adk.agents import LlmAgent
-    text = f"{skill.body}\n\nAllowed categories: {', '.join(skill.categories)}\nAllowed flags: {', '.join(skill.flags)}"
+    text = _rules_text(skill)
     return LlmAgent(name="rules", model=_model(skill), instruction=lambda _ctx: text,
                     output_schema=Verdict, include_contents="none")
 
@@ -62,7 +87,7 @@ def _step(step: str, skill: Skill, live: bool, produce, parse):
     rec = {"step": step, "model": override["model"] if override else skill.model, "called_llm": live}
     t = time.perf_counter()
     try:
-        rec["response"] = produce()
+        rec["response"] = produce(rec)
         return parse(rec["response"])
     except Exception as e:
         rec["error"] = f"{type(e).__name__}: {str(e)[:600]}"
@@ -76,7 +101,8 @@ def _step(step: str, skill: Skill, live: bool, produce, parse):
 def extract(skill: Skill, file_id: str, data: bytes, mime: str) -> ReceiptExtraction:
     live = os.getenv("LLM_MODE", "replay") != "replay"
 
-    def produce():
+    def produce(rec):
+        rec["request"] = f"[system] {EXTRACT_PROMPT}\n[user] attached receipt file {file_id} ({mime}, {len(data)} bytes)"
         if not live:
             return (REPLAY / "extract" / f"{file_id}.json").read_text()
         from google.genai import types
@@ -88,12 +114,13 @@ def extract(skill: Skill, file_id: str, data: bytes, mime: str) -> ReceiptExtrac
 def judge(skill: Skill, expense: dict, rx: ReceiptExtraction, facts: list) -> Verdict:
     live = os.getenv("LLM_MODE", "replay") != "replay"
 
-    def produce():
+    def produce(rec):
+        payload = {"expense": {k: expense.get(k) for k in ("title", "note", "category", "supplier", "owner", "reconciliation")},
+                   "receipt": rx.model_dump(), "check_results": [f.__dict__ for f in facts]}
+        rec["request"] = f"[system] {_rules_text(skill)}\n[user] {json.dumps(payload, default=str, indent=1)}"
         if not live:
             return (REPLAY / "rules" / f"{expense['id']}.json").read_text()
         from google.genai import types
-        payload = {"expense": {k: expense.get(k) for k in ("title", "note", "category", "supplier", "owner", "reconciliation")},
-                   "receipt": rx.model_dump(), "check_results": [f.__dict__ for f in facts]}
         return _run(build_rules_agent(skill), [types.Part(text=json.dumps(payload, default=str))])
 
     return _step("rules", skill, live, produce, Verdict.model_validate_json)

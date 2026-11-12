@@ -32,3 +32,30 @@ def test_duplicate_earliest_is_original_regardless_of_processing_order():
     assert duplicate(late, RX, ctx, {}) is None
     assert duplicate(early, RX, ctx, {}) is None            # now the original
     assert duplicate(late, RX, ctx, {}).duplicate_of == "1"
+
+
+def test_rules_prompt_injects_user_rules_and_accepts_new_codes():
+    from app.pipeline import llm, run
+    from app.skills import SkillRegistry
+    skill = SkillRegistry().get()
+    text = llm._rules_text(skill)
+    assert "<user_rules>\ncheck whether there is any duplicate claims" in text and "{" not in text.split("<user_rules>")[0]
+    assert run.CODE.fullmatch("fx_difference") and not run.CODE.fullmatch("Bad Code!")
+
+
+def test_rules_rename_check_codes_and_reject_unknown_checks():
+    import pytest
+    from app.skills import SkillRegistry, parse_skill
+    base = SkillRegistry().default_text()
+    s = parse_skill(base.replace("  number_matches: {}", "  number_matches: {flag: invoice_number_wrong}"))
+    assert "invoice_number_wrong" in s.flags  # renamed code is known without editing `flags:`
+    with pytest.raises(ValueError, match="unknown check"):
+        parse_skill(base.replace("  number_matches: {}", "  number_matchez: {}"))
+
+
+def test_original_of_a_duplicate_is_marked():
+    from app.rows import row
+    e = {"id": "1", "owner": {"firstName": "A", "lastName": "B"}, "reconciliation": {"baseTotalAmount": 1, "baseCurrency": "EUR", "totalAmount": 1, "currency": "EUR"},
+         "document": {"documentDate": "2026-11-01", "files": [{"fileId": "f"}]}}
+    r = {"duplicate_of": "", "receipt": {"total": 1, "currency": "EUR"}}
+    assert row(e, r, {"1"})["duplicate_role"] == "original" and row(e, r)["duplicate_role"] == ""

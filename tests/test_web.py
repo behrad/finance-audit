@@ -103,3 +103,54 @@ def test_poll_settings(api):
     assert s["poll_limit"] == 2 and s["auto_poll"] is False
     assert api.put("/api/settings/poll", json={"poll_limit": None}).json()["poll_limit"] is None
     assert api.put("/api/settings/poll", json={"poll_limit": 0}).status_code == 400
+
+
+def test_offline_mode(tmp_path, monkeypatch, http):
+    from app.payhawk.offline import OfflineClient
+    (tmp_path / "7.json").write_text('{"id": "7", "document": {"files": [{"fileId": "f7", "contentType": "application/pdf"}]}}')
+    (tmp_path / "7").mkdir()
+    (tmp_path / "7" / "f7.pdf").write_bytes(b"%PDF")
+    c = OfflineClient(tmp_path)
+    assert [e["id"] for e in c.expenses()] == ["7"] and c.expense("7")["id"] == "7"
+    assert c.download(c.files("7")[0]) == b"%PDF" and c.comment("7", "x") == {}
+    monkeypatch.setattr(web, "data_mode", None)
+    monkeypatch.setenv("OFFLINE_DIR", str(tmp_path))
+    assert http.put("/api/settings/mode", json={"mode": "offline"}).json()["mode"] == "OFFLINE"
+    assert isinstance(web.make_client(), OfflineClient) and http.get("/api/info").json()["mode"] == "OFFLINE"
+    assert http.put("/api/settings/mode", json={"mode": "live"}).json()["mode"] != "OFFLINE"
+    assert http.put("/api/settings/mode", json={"mode": "x"}).status_code == 422
+
+
+def test_multi_flag_details(client, monkeypatch):
+    from datetime import date
+
+    from app.pipeline import run
+    from app.pipeline.models import SemanticFlag, Verdict
+    from app.rows import row
+    from app.skills import SkillRegistry
+    skill = SkillRegistry().get("default")
+    monkeypatch.setattr(run.llm, "judge", lambda *a: Verdict(flags=[SemanticFlag(name=next(f for f in skill.flags if f != "fx_difference"), description="llm says so")]))
+    e = client.expense("1005")
+    r = run.review_expense(e, skill, run.Ctx(date(2026, 11, 6)), client)
+    assert len(r["flags"]) > 1 and [d["flag"] for d in r["flag_details"]] == r["flags"]
+    assert row(e, r)["flag_details"] == r["flag_details"]
+
+
+def test_payhawk_live_fetch_and_review_raw(api, monkeypatch):
+    api.post("/api/runs/fetch"); api.post("/api/runs/analyze")
+    eid = api.get("/api/reviews").json()[0]["expense_id"]
+    d = api.get(f"/api/reviews/{eid}").json()
+    assert d["raw"]["id"] == eid and isinstance(d["files"], list)
+
+    class Live:
+        def expense(self, i):
+            if i == "bad":
+                raise web.PayhawkApiError(404, "boom")
+            return {"id": i, "live": True}
+
+        def comments(self, i):
+            return [{"payload": "hi"}]
+    monkeypatch.setattr(web, "live_client", lambda: Live())
+    assert api.get("/api/payhawk/expenses/x1").json() == {"id": "x1", "live": True, "comments": [{"payload": "hi"}]}
+    r = api.get("/api/payhawk/expenses/bad")
+    assert r.status_code == 502 and "boom" in r.json()["detail"]

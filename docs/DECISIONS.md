@@ -59,11 +59,11 @@ Last updated: 2026-11-08.
 | P7 | **Multiple flags.** `category_for_attention` holds the main flag. All flags go in `description`, separated by `; `. | One row per flag. |
 | P8 | **Sheet vs dashboard actions.** Both write the same `action` field, and the most recent change wins. The service never overwrites `action` in the sheet. | The sheet is authoritative. |
 | P9 | **Comments.** A Payhawk comment is posted once per distinct verdict, so the same result isn't posted twice. | A comment on every run. |
-| P10 | **Write-back switches** per tenant (patch, mark ready, comment, dry run). `dry_run` is **on until the first verified live run**. Mock mode always writes, since there's no risk. | No switches. |
+| P10 | **Write-back switches** per tenant (patch, mark ready, comment, dry run). `dry_run` is **off by default** (writes go live); set `WRITEBACK_DRY_RUN=1` or toggle in Settings to only log. Mock mode always writes, since there's no risk. | No switches. |
 | P11 | **Mock in the app.** The mock Payhawk is a router inside the app (`/mock-payhawk`), checked against Payhawk's OpenAPI spec by contract tests. Without a Gemini key, `LLM_MODE=replay` uses recorded responses, so the demo needs **no keys at all**. | A separate mock container; always require a Gemini key. |
 | P12 | **CSV fallback.** With no Google Sheet configured, the dashboard and a CSV export with the same columns stand in for the sheet. | Require a sheet. |
 | P13 | **Model** set explicitly per tenant in the skill frontmatter, with a Gemini name (`gemini-3.8-flash`, **not confirmed yet**, check the Vertex model list) and an OpenAI name (not chosen yet; must read images/PDFs and return structured output). See D8. | `gemini-3.5-flash-lite` (cheaper). |
-| P14 | **Flag vocabulary:** `duplicate, wrong_exchange_rate, wrong_value, total_mismatch, note_mismatch, supplier_not_employee, category_mismatch, date_mismatch, service_period_out_of_range, number_mismatch, unreadable_receipt`. | Edit the list. |
+| P14 | **Flag vocabulary:** `duplicate, fx_difference, wrong_value, total_mismatch, note_mismatch, supplier_not_employee, category_mismatch, date_mismatch, service_period_out_of_range, number_mismatch, unreadable_receipt`. A check's code is renamed with `flag: <code>` on that check in SKILL.md; the flag list includes those codes automatically. | Edit the list. |
 | P15 | **Poll timing.** Every 15 minutes. Receipts are kept for 90 days. | |
 | P16 | **Re-review on edit.** An expense is re-evaluated whenever its `modifiedAt` or file list changes. | Evaluate once only. |
 

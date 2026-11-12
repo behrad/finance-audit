@@ -58,14 +58,68 @@ Start / stop (needs `.env.keys`; `PORT=8081` if 8080 is busy):
 ./scripts/stop.sh  --docker
 ```
 
+Raw JSON of one expense (mock unless run under dotenvx):
+
+```bash
+npx @dotenvx/dotenvx run -q -- uv run python -m scripts.expense 214   # live
+```
+
 The **Settings** page in the UI shows mock vs live, Payhawk host/account id, last poll duration, poll interval
 (`POLL_INTERVAL_SECONDS`, 0 = manual), LLM provider/model/mode, and write-back dry-run, plus a "Test Payhawk connection" button.
 
 Docker / Google Cloud: ship the encrypted `.env` in the image, never `.env.keys`. Provide the key at runtime as the single env var
 `DOTENV_PRIVATE_KEY` (Cloud Run: Secret Manager secret exposed as env var; compose: `DOTENV_PRIVATE_KEY=$(...)` from your shell).
 Without it the app falls back to the mock. Variable names are `PAYHAWK_API_KEY` and `PAYHAWK_BASE_URL` (see `.env.example`).
-Not tested against a real account. Write-back has a `dry_run` switch (`app/writeback.py` `Switches`) that should be on for the first live run;
-it currently defaults to **off** and is not yet configurable from env or UI.
+Write-back is **live by default**. `WRITEBACK_DRY_RUN=1` (or the Settings toggle) makes it log-only. Comments you post land on
+`/comments/expense/{id}` in Payhawk, not on the expense JSON; the "Fetch expense from Payhawk" panel shows both.
+
+## Rules: editing, per customer, renaming codes
+
+A customer's rules live in one file, `skills/<tenant>/SKILL.md`. If there is no folder for a tenant,
+`skills/default/` is used. A file has two parts:
+
+- **Frontmatter** (between the `---` lines): what the code runs. `model`, `flags` (known codes),
+  `checks` (deterministic checks from `app/pipeline/checks.py`, run in that order, with their params),
+  `categories`, `fallback_category`.
+- **Body**: the customer's rules in plain English, exactly as they wrote them. It is injected into our fixed
+  system prompt (`SYSTEM_PROMPT` in `app/pipeline/llm.py`) as `<user_rules>…</user_rules>`. Our own
+  instructions go in `SYSTEM_PROMPT`, never in the body.
+
+How a rule gets enforced:
+1. **The code already checks it**: list the check under `checks:`. The AI is told not to redo it.
+2. **No check for it yet**: write it in the body only. The AI judges it and returns a flag. It uses a known
+   code if one fits, otherwise a new snake_case code (or the one the rule names). New codes are accepted.
+3. **It must be exact** (money, dates, numbers): add a function to `checks.py`, add its default code to
+   `FLAGS`, list it under `checks:` and add a test in `tests/test_checks.py`.
+
+### Changing things without breaking anything
+1. **Rename a code**: put `flag: <new_code>` on the check, e.g. `fx_deviation: {..., flag: fx_difference}`.
+   Don't edit the code in `checks.py`. The renamed code is added to the known flags automatically, so `flags:`
+   can't fall out of sync. Also use the same code in the body text if the rule mentions it.
+2. **One source of truth**: each check's default code is listed only in `FLAGS` (`checks.py`). Check
+   functions read it from there.
+3. **Typos are rejected**: a check name under `checks:` that the code doesn't have (e.g. `number_matchez`)
+   is an error when you save or load, and the error lists the valid names. Nothing is skipped silently.
+4. **Rules with no check still work**: see point 2 above.
+5. **Edited rules trigger a re-review**: the rules' version is a hash of the file. A changed file makes every
+   expense pending again (`jobs.pending`), so old and new results are never mixed. Reviews saved earlier keep
+   their old codes until they are reviewed again.
+
+### Where to edit
+- **Rules page** (dashboard): saves an override to `data/skills/default/SKILL.md` (gitignored), which wins
+  over the repo file. "Reset" deletes the override. Invalid rules are refused with the error.
+- **In the repo**: edit `skills/<tenant>/SKILL.md` and commit. That's for defaults and for new customers.
+- **New customer**: copy `skills/default/` to `skills/<tenant>/`, then edit the body and params.
+  Limitation: the web app and jobs only use `default` for now (`SkillRegistry().get()` in `app/web.py`,
+  `analyze(tenant="default")` in `app/jobs.py`). Real multi-tenant needs that tenant passed through.
+
+### After any change
+- Run `uv run pytest -q`. `test_pipeline_fixtures.py` compares flag codes against `fixtures/expected.json`.
+  If you renamed a code on purpose, update that file (and `expect=` in `scripts/make_mock_receipts.py`).
+- Renaming a code changes what lands in the CSV and the dashboard (`flags`, `category_for_attention`). Payhawk
+  comments only carry the description text. Tell whoever filters on the old name.
+- Not covered by the code yet: the duplicate "original" marking is only shown in the dashboard / CSV
+  (`duplicate_role`), not written back to Payhawk.
 
 ## Test
 
@@ -98,3 +152,10 @@ To deploy a demo today: `gcloud run deploy receipt-auditor --source . --no-allow
 Not yet done or verified by me: this command was not run.
 
 Next for production: Firestore store, IAP, jobs + Scheduler, Secret Manager + settings page, Sheets sync, GitHub Actions, then a live dry-run against a real Payhawk account.
+
+## Offline mode
+
+Settings -> Data source switches between LIVE (Payhawk API) and OFFLINE (local files, no network, write-backs are no-ops).
+`PUT /api/settings/mode {"mode": "offline"|"live"}`; default from `DATA_MODE` (live), folder from `OFFLINE_DIR` (`data/offline/expenses`).
+Layout: `<id>.json` (raw `GET /expenses/{id}`) + `<id>/<fileId>.pdf`. `data/` is git-ignored (real company data).
+Snapshot live expenses: `PYTHONPATH=. npx @dotenvx/dotenvx run -q -- uv run python -m scripts.offline_snapshot 224 223`.

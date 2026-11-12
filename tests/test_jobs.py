@@ -29,9 +29,9 @@ def test_fetch_is_raw_then_analyze_writes_back_and_is_idempotent(client, http):
     n = len(http.get("/mock-payhawk/__log").json())
     assert jobs.pending(s, SkillRegistry().get()) == []
     assert jobs.analyze(client, s, run_date=DAY)["analyzed"] == 0
-    again = jobs.fetch(client, s, run_date=DAY)                  # our own patches changed modifiedAt
-    assert again["updated"] == 3 and again["new"] == 0
-    assert jobs.analyze(client, s, run_date=DAY)["analyzed"] == 3
+    again = jobs.fetch(client, s, run_date=DAY)                  # our patches changed 1009/1010; 1002 is ready -> left the queue
+    assert again["updated"] == 2 and again["new"] == 0 and "1002" not in {i["expense_id"] for i in s.poll_logs[-1]["items"]}
+    assert jobs.analyze(client, s, run_date=DAY)["analyzed"] == 2
     assert len(http.get("/mock-payhawk/__log").json()) == n      # nothing written twice (comments hashed, fixes done)
 
 
@@ -75,3 +75,32 @@ def test_repeat_approve_is_idempotent(client, http):
     r = jobs.set_action(client, s, "1001", "approve")             # repeat: no error, no second call
     assert len(s.log) == n
     assert r["action_done"] == "approve"
+
+
+def test_approve_comment_lands_and_dry_run_ask_stays_pending(client):
+    from app.writeback import Switches
+    s = Store()
+    run(client, s)
+    jobs.set_action(client, s, "1001", "approve", "looks fine")
+    assert "approved by finance. looks fine" in client.comments("1001")[-1]["payload"]
+    r = jobs.set_action(client, s, "1004", "ask_review", "why?", cfg=Switches(dry_run=True))
+    assert r["action_done"] == "" and not any("why?" in c["payload"] for c in client.comments("1004"))
+    assert jobs.decide(client, s, Switches(dry_run=False))["applied"] == 1      # sent once writes are on
+    assert "why?" in client.comments("1004")[-1]["payload"]
+
+
+def test_analyze_log_records_each_llm_input(client):
+    s = Store()
+    jobs.fetch(client, s, run_date=DAY)
+    jobs.analyze(client, s, run_date=DAY)
+    steps = [c for i in s.poll_logs[-1]["items"] for c in i["llm"]]
+    assert {c["step"] for c in steps} == {"extract", "rules"} and all(c["request"] for c in steps)
+
+
+def test_fetch_reads_only_the_review_queue(client, http):
+    from app.payhawk.mock import store as mock
+    mock.expense("1003")["approvalProcess"]["status"] = "pending"   # still with the approver
+    client.set_status("1004", "ready")                              # already reviewed
+    s = Store()
+    jobs.fetch(client, s, run_date=DAY)
+    assert "1003" not in s.expenses and "1004" not in s.expenses and len(s.expenses) == 12

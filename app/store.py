@@ -15,7 +15,7 @@ class Store:
     feed_sigs: dict[str, tuple] = field(default_factory=dict)  # same, as last fetched into the Feed
     failed: dict[str, str] = field(default_factory=dict)      # expense_id -> last analyze error
     poll_limit: int | None = field(default_factory=lambda: int(os.getenv("POLL_LIMIT") or 0) or None)  # None = no cap
-    auto_poll: bool = True                                    # background timer fetches only when True
+    auto_poll: bool = False                                   # background timer fetches only when True
     fetch_truncated: bool = False                             # last fetch hit poll_limit
     comment_hashes: dict[str, set] = field(default_factory=dict)
     log: list[dict] = field(default_factory=list)             # write-back log

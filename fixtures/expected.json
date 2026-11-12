@@ -41,7 +41,7 @@
     "expense_id": "1005",
     "status": "needs attention",
     "flags": [
-      "wrong_exchange_rate"
+      "fx_difference"
     ],
     "duplicate_of": "",
     "fixes": {},

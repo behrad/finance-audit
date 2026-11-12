@@ -53,7 +53,7 @@ CASES = [
          expect=["duplicate"], dup_of="1003"),
     dict(id="1005", emp=("Daan", "Bakker"), merchant="Hotel Adlon Berlin", lines=[("Room, 1 night", 120.00)],
          r=("EUR", "A-9001", "2026-11-01", None), form={"total": 150.00, "fx": 1.25}, cat="Accommodation",
-         note="Hotel Berlin conference", expect=["wrong_exchange_rate"]),
+         note="Hotel Berlin conference", expect=["fx_difference"]),
     dict(id="1006", emp=("Eva", "Smit"), merchant="Deutsche Bahn", lines=[("ICE Amsterdam-Berlin", 50.00)],
          r=("EUR", "Z-310", "2026-11-01", None), form={"total": 54.50, "fx": 1.09}, cat="Travel",
          note="Train to Berlin", expect=[]),

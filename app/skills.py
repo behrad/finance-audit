@@ -5,6 +5,10 @@ from pathlib import Path
 
 import yaml
 
+from app.pipeline.checks import CHECKS, FLAGS
+
+SPECIAL = {"auto_approve_under"}  # handled in run.py, not a check function
+
 ROOT = Path(__file__).resolve().parents[1] / "skills"
 OVERRIDE_ROOT = Path(__file__).resolve().parents[1] / "data" / "skills"  # user-edited Rules; data/ is gitignored
 
@@ -24,8 +28,13 @@ class Skill:
 def parse_skill(text: str) -> Skill:
     _, fm, body = text.split("---\n", 2)
     meta = yaml.safe_load(fm)
-    return Skill(meta["name"], hashlib.sha1(text.encode()).hexdigest()[:8], meta["model"], meta["flags"],
-                 meta.get("checks", {}), meta.get("categories", []), meta.get("fallback_category", ""), body.strip())
+    checks = {k: v or {} for k, v in (meta.get("checks") or {}).items()}
+    if unknown := set(checks) - set(CHECKS) - SPECIAL:
+        raise ValueError(f"unknown check(s) {sorted(unknown)}; the code has: {sorted(set(CHECKS) | SPECIAL)}")
+    # every code a check can emit is a known flag, so renaming one in `checks:` can never fall out of sync with `flags:`
+    flags = list(dict.fromkeys([*(meta.get("flags") or []), *(p.get("flag") or FLAGS[k] for k, p in checks.items() if k in CHECKS)]))
+    return Skill(meta["name"], hashlib.sha1(text.encode()).hexdigest()[:8], meta["model"], flags,
+                 checks, meta.get("categories", []), meta.get("fallback_category", ""), body.strip())
 
 
 class SkillRegistry:

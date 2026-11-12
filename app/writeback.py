@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from app.store import Store
 
 
-dry_run_override: bool | None = None  # set from Settings; in-memory, so a restart falls back to the safe .env value
+dry_run_override: bool | None = None  # set from Settings; in-memory, so a restart falls back to the .env value
 
 
 @dataclass
@@ -15,7 +15,7 @@ class Switches:
     patch: bool = True
     mark_ready: bool = True
     comment: bool = True
-    dry_run: bool = field(default_factory=lambda: os.getenv("WRITEBACK_DRY_RUN") == "1" if dry_run_override is None else dry_run_override)  # P10: set in .env for live; unset = writes
+    dry_run: bool = field(default_factory=lambda: os.getenv("WRITEBACK_DRY_RUN") == "1" if dry_run_override is None else dry_run_override)  # P10: default writes; WRITEBACK_DRY_RUN=1 only logs
 
 
 def _call(store: Store, cfg: Switches, eid: str, what: str, fn, *args, **kw):
@@ -57,12 +57,15 @@ def apply(client, store: Store, review: dict, cfg: Switches) -> None:
 
     action = review["action"]
     if action == "approve" and review.get("action_done") != "approve":
+        if review.get("comment") and cfg.comment:
+            _comment_once(client, store, cfg, eid, f"Receipt Auditor: approved by finance. {review['comment']}".strip())
         if draft and cfg.mark_ready:
             _call(store, cfg, eid, "status", client.set_status, eid, "ready")
         if e["status"] == "ready" or (draft and cfg.mark_ready and not cfg.dry_run):  # already reviewed counts as done
             review["action_done"] = "approve"
     elif action == "ask_review" and cfg.comment:
         _comment_once(client, store, cfg, eid, f"Receipt Auditor: review requested by finance. {review.get('comment') or review['description']}".strip())
-        review["action_done"] = "ask_review"
+        if not cfg.dry_run:  # a dry run must stay pending so `decide` sends it once writes are on
+            review["action_done"] = "ask_review"
     elif not action and review["status"] == "needs attention" and cfg.comment:
         _comment_once(client, store, cfg, eid, f"Receipt Auditor: needs attention. {review['description']}")

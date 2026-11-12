@@ -26,8 +26,12 @@ def fetch(client: PayhawkClient, store: Store, run_date: date | None = None) -> 
     run_date = run_date or date.today()
     store.ctx.run_date = run_date
     # date filter ignores time of day (R4): re-fetch a 2-day window; full backfill first and after a truncated fetch (else the older backlog is orphaned)
-    flt = {"modifiedAt": {"$greaterThan": (run_date - timedelta(days=2)).isoformat()}} if store.feed_sigs and not store.fetch_truncated else None
-    received = sorted(client.expenses(flt), key=lambda e: (e["createdAt"], e["id"]))
+    flt = {"status": {"$equal": "draft"}}  # Review tab = approved but not yet reviewed (status still draft)
+    if store.feed_sigs and not store.fetch_truncated:
+        flt["modifiedAt"] = {"$greaterThan": (run_date - timedelta(days=2)).isoformat()}
+    # approvalProcess.status has no server-side filter, so drop not-submitted / pending / rejected here
+    received = sorted((e for e in client.expenses(flt) if (e.get("approvalProcess") or {}).get("status") == "approved"),
+                      key=lambda e: (e["createdAt"], e["id"]))
     fresh = [e for e in received if _sig(e) != store.feed_sigs.get(e["id"])]
     taken = {e["id"]: e for e in fresh[: store.poll_limit]}  # poll_limit caps how much lands per fetch (None = all)
     store.fetch_truncated = len(fresh) > len(taken)

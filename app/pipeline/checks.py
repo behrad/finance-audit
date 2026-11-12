@@ -1,4 +1,4 @@
-"""Deterministic checks. Each: (expense, extraction, ctx, params) -> Fact | None. Add one here and name it in a SKILL.md."""
+"""Deterministic checks. Each: (expense, extraction, ctx, params) -> Fact | None. Add one here (+ its code in FLAGS) and name it in a SKILL.md."""
 import re
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -22,7 +22,7 @@ def _norm(s: str) -> str:
 
 def readable(e, rx, ctx, p):
     if rx.legibility < p["min_legibility"]:
-        return Fact("unreadable_receipt", f"Receipt is not legible enough to check (score {rx.legibility:.2f}).")
+        return Fact(FLAGS["readable"], f"Receipt is not legible enough to check (score {rx.legibility:.2f}).")
 
 
 def duplicate(e, rx, ctx, p):
@@ -31,20 +31,20 @@ def duplicate(e, rx, ctx, p):
     seen[e["id"]] = e["createdAt"]
     original = min(seen.items(), key=lambda kv: (kv[1], kv[0]))[0]  # earliest createdAt is the original
     if original != e["id"]:
-        return Fact("duplicate", f"Same receipt as expense {original}.", duplicate_of=original)
+        return Fact(FLAGS["duplicate"], f"Same receipt as expense {original}.", duplicate_of=original)
 
 
 def total_matches_receipt(e, rx, ctx, p):
     r = e["reconciliation"]
     if r["currency"] != rx.currency or abs(r["totalAmount"] - rx.total) > 0.005:
-        return Fact("total_mismatch", f"Expense total {r['totalAmount']:.2f} {r['currency']} but receipt shows {rx.total:.2f} {rx.currency}.")
+        return Fact(FLAGS["total_matches_receipt"], f"Expense total {r['totalAmount']:.2f} {r['currency']} but receipt shows {rx.total:.2f} {rx.currency}.")
 
 
 def value_matches(e, rx, ctx, p):
     r = e["reconciliation"]
     expected = rx.total * r["fxRate"]
     if abs(r["baseTotalAmount"] - expected) > p["tolerance"]:
-        return Fact("wrong_value", f"Amount in {r['baseCurrency']} is {r['baseTotalAmount']:.2f} but the receipt gives {expected:.2f}.")
+        return Fact(FLAGS["value_matches"], f"Amount in {r['baseCurrency']} is {r['baseTotalAmount']:.2f} but the receipt gives {expected:.2f}.")
 
 
 def fx_deviation(e, rx, ctx, p):
@@ -54,26 +54,26 @@ def fx_deviation(e, rx, ctx, p):
         return None
     dev = round(abs(r["fxRate"] / ref - 1), 6)
     if dev > p["tolerance"]:
-        return Fact("wrong_exchange_rate", f"Rate {r['fxRate']} deviates {dev:.1%} from reference {ref} (tolerance {p['tolerance']:.0%}).")
+        return Fact(FLAGS["fx_deviation"], f"Rate {r['fxRate']} deviates {dev:.1%} from reference {ref} (tolerance {p['tolerance']:.0%}).")
 
 
 def supplier_is_employee(e, rx, ctx, p):
     o = e["owner"]
     name = f"{o['firstName']} {o['lastName']}"
     if _norm((e.get("supplier") or {}).get("name", "")) != _norm(name):
-        return Fact("supplier_not_employee", f"Supplier should be the claimant ({name}).", fix={"supplier": name})
+        return Fact(FLAGS["supplier_is_employee"], f"Supplier should be the claimant ({name}).", fix={"supplier": name})
 
 
 def document_date_matches(e, rx, ctx, p):
     d = e["document"]["documentDate"][:10]
     if d != rx.date:
-        return Fact("date_mismatch", f"Document date is {d} but the receipt is dated {rx.date}.")
+        return Fact(FLAGS["document_date_matches"], f"Document date is {d} but the receipt is dated {rx.date}.")
 
 
 def number_matches(e, rx, ctx, p):
     n = e["document"].get("documentNumber", "")
     if _norm(n) != _norm(rx.receipt_number):
-        return Fact("number_mismatch", f"Document number is {n} but the receipt says {rx.receipt_number}.")
+        return Fact(FLAGS["number_matches"], f"Document number is {n} but the receipt says {rx.receipt_number}.")
 
 
 def service_period(e, rx, ctx, p):
@@ -83,8 +83,18 @@ def service_period(e, rx, ctx, p):
         return None
     first_of_month = ctx.run_date.replace(day=1)
     if _d(end) < first_of_month or _d(end) > ctx.run_date + timedelta(days=p["max_future_days"]):
-        return Fact("service_period_out_of_range", f"Service period {start[:10]} to {end[:10]} is outside the current month ({first_of_month:%Y-%m}).")
+        return Fact(FLAGS["service_period"], f"Service period {start[:10]} to {end[:10]} is outside the current month ({first_of_month:%Y-%m}).")
 
 
 CHECKS = {f.__name__: f for f in (readable, duplicate, total_matches_receipt, value_matches, fx_deviation,
                                   supplier_is_employee, document_date_matches, number_matches, service_period)}
+# Default flag code per check. A SKILL.md check may rename it with `flag: <code>`; run.py applies the rename.
+FLAGS = {"readable": "unreadable_receipt",
+         "duplicate": "duplicate",
+         "total_matches_receipt": "total_mismatch",
+         "value_matches": "wrong_value",
+         "fx_deviation": "wrong_exchange_rate",
+         "supplier_is_employee": "supplier_not_employee",
+         "document_date_matches": "date_mismatch",
+         "number_matches": "number_mismatch",
+         "service_period": "service_period_out_of_range"}
